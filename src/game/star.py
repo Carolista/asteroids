@@ -1,7 +1,7 @@
 import pygame
 import random
-from circleshape import CircleShape
-from constants import STAR_COLORS
+from .circleshape import CircleShape
+from ..config.constants import STAR_COLORS
 
 
 class Star(CircleShape):

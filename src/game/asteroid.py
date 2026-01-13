@@ -1,9 +1,9 @@
 import pygame
 import random
 
-from logger import log_event
-from circleshape import CircleShape
-from constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
+from .logger import log_event
+from .circleshape import CircleShape
+from ..config.constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius, color):
@@ -32,4 +32,3 @@ class Asteroid(CircleShape):
             new_asteroid_1.velocity = 1.2 * new_vector_1
             new_asteroid_2.velocity = 1.2 * new_vector_2
         self.kill()
-        

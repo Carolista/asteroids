@@ -1,7 +1,7 @@
 import pygame
 import random
-from star import Star
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from .star import Star
+from ..config.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class StarField(pygame.sprite.Sprite):
