@@ -1,13 +1,15 @@
 import sys
 import pygame
 from logger import log_state, log_event
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_COLOR
 from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
 def main():
+    pygame.init()
+    
     print(f"Starting Asteroids with pygame version: {pygame.version.ver}")
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
@@ -15,6 +17,10 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     dt = 0
+    
+    # Score display
+    font = pygame.font.SysFont("monospace", 40)
+    score = 0
 
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
@@ -47,15 +53,21 @@ def main():
                     log_event("asteroid_shot")
                     shot.kill()
                     asteroid.split()
+                    score += (100 - asteroid.radius)
             if player.collides_with(asteroid):
                 log_event("player_hit")
                 print("Game over!")
                 sys.exit()
 
         # Render
-        screen.fill("black")
+        screen.fill(SCREEN_COLOR)
         for obj in drawable:
             obj.draw(screen)
+        
+        # Draw score panel
+        score_text = font.render(f"{score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+        
         pygame.display.flip()
 
         # Manage fps
