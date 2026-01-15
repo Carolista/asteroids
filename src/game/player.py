@@ -14,6 +14,7 @@ from ..config.constants import (
     PLAYER_SHOOT_SPEED,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
+    THRUSTER_COLOR,
 )
 from .circleshape import CircleShape
 from .shot import Shot
@@ -37,19 +38,11 @@ class Player(CircleShape):
         return [a, b, c]
 
     def thruster_flame(self):
-        # This is the opposite direction of the nose
         backward = pygame.Vector2(0, 1).rotate(self.rotation)
 
-        # Calculate the base of the ship (the rear)
-        # We use a slightly smaller radius so it starts 'inside' the ship
         flame_root = self.position + backward * (self.radius * 0.8)
-
-        # Calculate the 'tip' of the flame
-        # random.uniform adds the 'flicker' effect
         flame_length = self.radius * random.uniform(0.5, 1.2)
         flame_tip = flame_root + backward * flame_length
-
-        # Side points for the flame triangle
         side_width = self.radius / 3
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * side_width
 
@@ -63,7 +56,7 @@ class Player(CircleShape):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            pygame.draw.polygon(screen, (255, 165, 0), self.thruster_flame(), 0)
+            pygame.draw.polygon(screen, THRUSTER_COLOR, self.thruster_flame(), 0)
 
         pygame.draw.polygon(screen, PLAYER_COLOR, self.triangle(), 0)
 
