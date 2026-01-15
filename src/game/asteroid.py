@@ -3,7 +3,7 @@ import random
 
 import pygame
 
-from ..config.constants import ASTEROID_MIN_RADIUS, LINE_WIDTH
+from ..config.constants import ASTEROID_MIN_RADIUS, LINE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH
 from .circleshape import CircleShape
 from .logger import log_event
 
@@ -48,8 +48,13 @@ class Asteroid(CircleShape):
         pygame.draw.polygon(screen, self.color, points, LINE_WIDTH)
 
     def update(self, dt):
-        self.position += dt * self.velocity
         self.rotation += dt * self.rotation_speed
+
+        self.position += dt * self.velocity
+
+        # Screen wrap
+        self.position.x %= SCREEN_WIDTH
+        self.position.y %= SCREEN_HEIGHT
 
     def split(self):
         if self.radius > ASTEROID_MIN_RADIUS:

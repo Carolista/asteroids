@@ -3,13 +3,17 @@ import random
 import pygame
 
 from ..config.constants import (
+    PLAYER_ACCELERATION,
     PLAYER_COLOR,
+    PLAYER_DRAG,
     PLAYER_FRICTION,
-    PLAYER_MOVE_SPEED,
+    PLAYER_MAX_SPEED,
     PLAYER_RADIUS,
     PLAYER_ROTATE_SPEED,
     PLAYER_SHOOT_COOLDOWN_SECONDS,
     PLAYER_SHOOT_SPEED,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
 )
 from .circleshape import CircleShape
 from .shot import Shot
@@ -20,6 +24,8 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.current_rotation_speed = 0
+        self.acceleration = PLAYER_ACCELERATION
+        self.drag = PLAYER_DRAG
         self.shot_timer = 0
 
     def triangle(self):
@@ -61,11 +67,9 @@ class Player(CircleShape):
 
         pygame.draw.polygon(screen, PLAYER_COLOR, self.triangle(), 0)
 
-    def move(self, dt):
-        unit_vector = pygame.Vector2(0, 1)
-        rotated_vector = unit_vector.rotate(self.rotation)
-        rotated_with_speed_vector = rotated_vector * PLAYER_MOVE_SPEED * dt
-        self.position += rotated_with_speed_vector
+    def thrust(self, dt):
+        forward = pygame.Vector2(0, -1).rotate(self.rotation)
+        self.velocity += forward * self.acceleration * dt
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
@@ -73,9 +77,9 @@ class Player(CircleShape):
         target_speed = 0
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.move(dt)
+            self.thrust(-dt * 0.5)
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.move(dt * -1)
+            self.thrust(dt)
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             target_speed -= PLAYER_ROTATE_SPEED
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -86,6 +90,18 @@ class Player(CircleShape):
         diff = target_speed - self.current_rotation_speed
         self.current_rotation_speed += diff * PLAYER_FRICTION
         self.rotation += self.current_rotation_speed * dt
+
+        if self.velocity.length() > 0:
+            self.velocity -= self.velocity * self.drag * dt
+
+        if self.velocity.length() > PLAYER_MAX_SPEED:
+            self.velocity.scale_to_length(PLAYER_MAX_SPEED)
+
+        self.position += self.velocity * dt
+
+        # Screen wrap
+        self.position.x %= SCREEN_WIDTH
+        self.position.y %= SCREEN_HEIGHT
 
         self.shot_timer -= dt
 
