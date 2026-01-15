@@ -5,7 +5,7 @@ description = "A classic Asteroids arcade game built with Pygame"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pygame==2.6.1",
+    "pygame-ce>=2.5.6",
 ]
 
 [project.scripts]
