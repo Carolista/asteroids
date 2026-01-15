@@ -1,7 +1,7 @@
 import sys
 import pygame
 from .logger import log_state, log_event
-from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_COLOR, GAME_OVER_COLOR, PROMPT_COLOR, SCORE_COLOR, BLACK
+from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_COLOR, GAME_OVER_COLOR, PROMPT_COLOR, SCORE_COLOR, BLACK, FONT_GAME_OVER
 from .textcontent import startup_text
 from .player import Player
 from .asteroid import Asteroid
@@ -16,9 +16,11 @@ def reset_groups_and_objects(updatable, drawable, asteroids, shots, stars):
     stars.empty()
     asteroids.empty()
     shots.empty()
-    
+
+    # Once created these two will be managed through their containers
     star_field = StarField()
     asteroid_field = AsteroidField()
+
     player = Player(x=SCREEN_WIDTH/2, y=SCREEN_HEIGHT/2)
     
     return player
@@ -92,7 +94,7 @@ def draw_game_over_overlay(screen):
     screen.blit(overlay, (0, 0))
     
     # GAME OVER text
-    game_over_font = pygame.font.Font("assets/fonts/game-font.ttf", 60)
+    game_over_font = pygame.font.Font(FONT_GAME_OVER, 60)
     game_over_text = game_over_font.render("GAME OVER", True, GAME_OVER_COLOR)
     game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 50))
     screen.blit(game_over_text, game_over_rect)
@@ -157,14 +159,13 @@ def main():
 
         # GAMEPLAY LOOP
         while True:
-
+            # Run game until player and an asteroid collide
             play_round(screen, clock, updatable, drawable, asteroids, shots, stars)
 
             # Initiate game-over prompt and get response
-            play_again = replay_or_quit(screen, clock, drawable)
-            
+            play_again = replay_or_quit(screen, clock, drawable)       
             if not play_again:
-                return  # Exit game completely
+                return  # End program
                 
     finally:
         print("Exiting program... thank you for playing!\n")

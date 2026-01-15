@@ -1,3 +1,5 @@
+import os
+
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
@@ -12,7 +14,7 @@ ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS
 # PLAYER/SHOOTER
 PLAYER_RADIUS = 20
 PLAYER_MOVE_SPEED = 240 # px/s
-PLAYER_ROTATE_SPEED = 300 # px/s
+PLAYER_ROTATE_SPEED = 300 # deg/s
 PLAYER_SHOOT_SPEED = 500 # px/s
 PLAYER_SHOOT_COOLDOWN_SECONDS = 0.3
 SHOT_RADIUS = 5
@@ -43,3 +45,9 @@ SCORE_COLOR = BLUE
 OVERLAY_COLOR = BLACK
 GAME_OVER_COLOR = RED
 PROMPT_COLOR = WHITE
+# FILE PATHS
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FONT_GAME_OVER = os.path.join(_BASE_DIR, "assets", "fonts", "game-font.ttf")
+LOG_DIR = os.path.join(_BASE_DIR, "logs")
+LOG_GAME_STATE = os.path.join(LOG_DIR, "game_state.jsonl")
+LOG_GAME_EVENTS = os.path.join(LOG_DIR, "game_events.jsonl")
