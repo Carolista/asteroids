@@ -1,7 +1,9 @@
-import pygame
 import random
+
+import pygame
+
+from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from .star import Star
-from ..config.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class StarField(pygame.sprite.Sprite):
@@ -14,7 +16,7 @@ class StarField(pygame.sprite.Sprite):
         for _ in range(self.num_stars):
             x = random.uniform(0, SCREEN_WIDTH)
             y = random.uniform(0, SCREEN_HEIGHT)
-            star = Star(x, y)
+            star = Star(x, y)  # noqa: F841
 
     def update(self, dt):
         pass

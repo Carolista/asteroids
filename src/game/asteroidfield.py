@@ -1,7 +1,17 @@
-import pygame
 import random
+
+import pygame
+
+from ..config.constants import (
+    ASTEROID_COLORS,
+    ASTEROID_KINDS,
+    ASTEROID_MAX_RADIUS,
+    ASTEROID_MIN_RADIUS,
+    ASTEROID_SPAWN_RATE_SECONDS,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+)
 from .asteroid import Asteroid
-from ..config.constants import SCREEN_WIDTH, SCREEN_HEIGHT, ASTEROID_MIN_RADIUS, ASTEROID_KINDS, ASTEROID_SPAWN_RATE_SECONDS, ASTEROID_MAX_RADIUS, ASTEROID_COLORS
 
 
 class AsteroidField(pygame.sprite.Sprite):
@@ -12,9 +22,7 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
         [
             pygame.Vector2(-1, 0),
-            lambda y: pygame.Vector2(
-                SCREEN_WIDTH + ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT
-            ),
+            lambda y: pygame.Vector2(SCREEN_WIDTH + ASTEROID_MAX_RADIUS, y * SCREEN_HEIGHT),
         ],
         [
             pygame.Vector2(0, 1),
@@ -22,9 +30,7 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
         [
             pygame.Vector2(0, -1),
-            lambda x: pygame.Vector2(
-                x * SCREEN_WIDTH, SCREEN_HEIGHT + ASTEROID_MAX_RADIUS
-            ),
+            lambda x: pygame.Vector2(x * SCREEN_WIDTH, SCREEN_HEIGHT + ASTEROID_MAX_RADIUS),
         ],
     ]
 

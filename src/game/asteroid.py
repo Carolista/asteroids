@@ -1,10 +1,12 @@
-import pygame
-import random
 import math
+import random
 
-from .logger import log_event
+import pygame
+
+from ..config.constants import ASTEROID_MIN_RADIUS, LINE_WIDTH
 from .circleshape import CircleShape
-from ..config.constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
+from .logger import log_event
+
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius, color):
@@ -29,14 +31,12 @@ class Asteroid(CircleShape):
             angle = (2 * math.pi * i) / num_points
             # Apply the pre-generated offset for this point
             r = self.radius + self.shape_offset[i]
-            x = r * math.cos(angle)
-            y = r * math.sin(angle)
-            
+
             # Rotate the point
             rotated_angle = angle + math.radians(self.rotation)
             rotated_x = r * math.cos(rotated_angle)
             rotated_y = r * math.sin(rotated_angle)
-            
+
             # Translate to world position
             world_x = self.position.x + rotated_x
             world_y = self.position.y + rotated_y
@@ -67,4 +67,3 @@ class Asteroid(CircleShape):
             new_asteroid_1.velocity = 1.2 * new_vector_1
             new_asteroid_2.velocity = 1.2 * new_vector_2
         self.kill()
-

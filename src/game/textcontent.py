@@ -1,6 +1,6 @@
 import pygame
 
-from ..config.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 
 startup_text = f"""
 \nStarting Asteroids with pygame version: {pygame.version.ver}
