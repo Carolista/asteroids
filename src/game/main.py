@@ -1,4 +1,3 @@
-import random
 import sys
 
 import pygame
@@ -7,13 +6,11 @@ from ..config.constants import (
     BLACK,
     FONT_GAME_OVER,
     GAME_OVER_COLOR,
-    PARTICLE_COLORS,
     PROMPT_COLOR,
     SCORE_COLOR,
     SCREEN_COLOR,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
-    WHITE,
 )
 from .asteroid import Asteroid
 from .asteroidfield import AsteroidField
