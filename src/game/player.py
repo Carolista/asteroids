@@ -19,6 +19,8 @@ from ..config.constants import (
 from .circleshape import CircleShape
 from .shot import Shot
 
+# TODO: Make hit box triangular instead of using circle
+
 
 class Player(CircleShape):
     def __init__(self, x, y):

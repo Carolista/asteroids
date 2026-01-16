@@ -26,6 +26,11 @@ from .star import Star
 from .starfield import StarField
 from .textcontent import startup_text
 
+# TODO: Implement fade in and fade out on wave transition text
+# TODO: Add bombs and mines
+# TODO: Add invincibility powerup and shield powerup
+# TODO: Add lives with a 1up powerup
+
 
 def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles):
     updatable.empty()
@@ -87,7 +92,7 @@ def draw_score_panel(screen, score):
     screen.blit(score_text, (10, 10))
 
 
-def draw_wave_text(screen, game_surface, wave_number):
+def draw_wave_text(screen, wave_number):
     wave_font = pygame.font.Font(FONT_SPECIAL, 80)
     wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
     wave_rect = wave_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
@@ -155,7 +160,7 @@ def play_round(
 
         # If between waves
         if is_transitioning:
-            draw_wave_text(screen, game_surface, wave_number)
+            draw_wave_text(screen, wave_number)
 
         # Re-render
         pygame.display.flip()
@@ -186,8 +191,8 @@ def draw_game_over_overlay(screen, final_score):
     screen.blit(final_score_text, final_score_rect)
 
     # Prompt text
-    prompt_font = pygame.font.Font(FONT_SPECIAL, 32)
-    prompt_text = prompt_font.render("Play again? Y / N", True, PROMPT_COLOR)
+    prompt_font = pygame.font.SysFont("monospace", 32)
+    prompt_text = prompt_font.render("Play Again?  Y / N", True, PROMPT_COLOR)
     prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60))
     screen.blit(prompt_text, prompt_rect)
 
