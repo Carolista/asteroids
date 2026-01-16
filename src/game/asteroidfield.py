@@ -42,7 +42,7 @@ class AsteroidField(pygame.sprite.Sprite):
         asteroid = Asteroid(position.x, position.y, radius, color)
         asteroid.velocity = velocity
 
-    def spawn_wave(self, count, wave_number = 1):
+    def spawn_wave(self, count, wave_number=1):
         for _ in range(count):
             edge = random.choice(self.edges)
             base_speed = 30 + (wave_number * 5)
@@ -50,7 +50,7 @@ class AsteroidField(pygame.sprite.Sprite):
             velocity = edge[0] * speed
             velocity = velocity.rotate(random.randint(-30, 30))
             position = edge[1](random.uniform(0, 1))
-            
+
             # Use a random size (kind) for the new wave
             if wave_number < 3:
                 kind = ASTEROID_KINDS

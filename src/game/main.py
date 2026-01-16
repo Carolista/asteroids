@@ -95,7 +95,15 @@ def draw_wave_text(screen, game_surface, wave_number):
 
 
 def play_round(
-    screen, game_surface, clock, player, updatable, drawable, asteroids, shots, asteroid_field  # noqa: E501
+    screen,
+    game_surface,
+    clock,
+    player,
+    updatable,
+    drawable,
+    asteroids,
+    shots,
+    asteroid_field,  # noqa: E501
 ):
     # Reset for new round
     score = 0
@@ -103,12 +111,12 @@ def play_round(
     shake_intensity = 0.0
     wave_number = 0
     is_transitioning = False
-    transition_timer = 0                      
+    transition_timer = 0
 
     # Manage re-rendering and interactive events
     while True:
         log_state()
-        
+
         # Check for end of wave
         if len(asteroids) == 0 and not is_transitioning:
             is_transitioning = True
@@ -140,7 +148,9 @@ def play_round(
             return score  # Continue to game-over prompt
 
         # Update screen, drawables, and score displays
-        shake_intensity = draw_game_surface_and_objects(screen, game_surface, drawable, shake_intensity)  # noqa: E501
+        shake_intensity = draw_game_surface_and_objects(
+            screen, game_surface, drawable, shake_intensity
+        )  # noqa: E501
         draw_score_panel(screen, score)
 
         # If between waves
@@ -241,12 +251,21 @@ def main():
 
         # GAMEPLAY LOOP
         while True:
-
-            player, asteroid_field = reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles)  # noqa: E501
+            player, asteroid_field = reset_groups_and_objects(
+                updatable, drawable, stars, asteroids, shots, particles
+            )  # noqa: E501
 
             # Run game until player and an asteroid collide
             final_score = play_round(
-                screen, game_surface, clock, player, updatable, drawable, asteroids, shots, asteroid_field  # noqa: E501, F821
+                screen,
+                game_surface,
+                clock,
+                player,
+                updatable,
+                drawable,
+                asteroids,
+                shots,
+                asteroid_field,  # noqa: E501, F821
             )
 
             # Initiate game-over prompt and get response
