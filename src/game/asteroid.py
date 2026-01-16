@@ -66,7 +66,7 @@ class Asteroid(CircleShape):
             new_asteroid_1 = Asteroid(x, y, new_radius, self.color)
             new_asteroid_2 = Asteroid(x, y, new_radius, self.color)
 
-            random_angle = random.uniform(20, 50)
+            random_angle = random.uniform(30, 50)
             new_vector_1 = self.velocity.rotate(random_angle)
             new_vector_2 = self.velocity.rotate(random_angle * -1)
             new_asteroid_1.velocity = 1.2 * new_vector_1

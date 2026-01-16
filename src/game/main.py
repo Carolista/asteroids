@@ -1,3 +1,4 @@
+import random
 import sys
 
 import pygame
@@ -42,28 +43,41 @@ def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, parti
     return player
 
 
-def run_collision_check(asteroids, shots, player, score):
+def run_collision_check(asteroids, shots, player, score, shake_intensity):
     shooter_collision_detected = False
     for asteroid in asteroids:
         for shot in shots:
             if shot.collides_with(asteroid):
                 log_event("asteroid_shot")
+                shake_intensity = asteroid.radius / 5
                 for _ in range(10):
                     p = Particle(shot.position.x, shot.position.y)  # noqa: F841
                 shot.kill()
                 asteroid.split()
-                score += 100 - asteroid.radius
+                score += 100 - int(asteroid.radius)
         if player.collides_with(asteroid):
             log_event("player_hit")
+            shake_intensity = 20
             shooter_collision_detected = True
             break
-    return shooter_collision_detected, score
+    return shooter_collision_detected, score, shake_intensity
 
 
-def draw_screen_and_objects(screen, drawable):
-    screen.fill(SCREEN_COLOR)  # Clear screen
+def draw_game_surface_and_objects(screen, game_surface, drawable, shake_intensity):
+    game_surface.fill(SCREEN_COLOR)  # Clear screen
     for obj in drawable:
-        obj.draw(screen)
+        obj.draw(game_surface)
+
+    offset = pygame.Vector2(0, 0)
+
+    if shake_intensity > 0:
+        offset.x = random.uniform(-shake_intensity, shake_intensity)
+        offset.y = random.uniform(-shake_intensity, shake_intensity)
+        shake_intensity -= 0.5  # Decay shake over time
+
+    screen.fill("black")
+    screen.blit(game_surface, offset)
+    return shake_intensity
 
 
 def draw_score_panel(screen, score):
@@ -72,11 +86,14 @@ def draw_score_panel(screen, score):
     screen.blit(score_text, (10, 10))
 
 
-def play_round(screen, clock, updatable, drawable, stars, asteroids, shots, particles):
+def play_round(
+    screen, game_surface, clock, updatable, drawable, stars, asteroids, shots, particles
+):  # noqa: E501
     # Reset for new round
     player = reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles)
     score = 0
     dt = 0
+    shake_intensity = 0.0
 
     # Manage re-rendering and interactive events
     while True:
@@ -92,13 +109,15 @@ def play_round(screen, clock, updatable, drawable, stars, asteroids, shots, part
         updatable.update(dt)
 
         # Handle collisions (asteroid/player, asteroid/shot)
-        should_end_game, score = run_collision_check(asteroids, shots, player, score)
+        should_end_game, score, shake_intensity = run_collision_check(
+            asteroids, shots, player, score, shake_intensity
+        )  # noqa: E501
 
         if should_end_game:
             return score  # Continue to game-over prompt
 
         # Update screen, drawables, and score displays
-        draw_screen_and_objects(screen, drawable)
+        shake_intensity = draw_game_surface_and_objects(screen, game_surface, drawable, shake_intensity)  # noqa: E501
         draw_score_panel(screen, score)
 
         # Re-render
@@ -123,7 +142,9 @@ def draw_game_over_overlay(screen, final_score):
 
     # Final score text
     final_score_font = pygame.font.Font(FONT_SCORE, 40)
-    final_score_text = final_score_font.render(f"FINAL SCORE: {final_score}", True, FINAL_SCORE_COLOR)  # noqa: E501
+    final_score_text = final_score_font.render(
+        f"FINAL SCORE: {final_score}", True, FINAL_SCORE_COLOR
+    )  # noqa: E501
     final_score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
     screen.blit(final_score_text, final_score_rect)
 
@@ -146,8 +167,10 @@ def replay_or_quit(screen, clock, drawable, final_score):
                 elif event.key == pygame.K_n:
                     return False
 
-        # Draw game field at last positions
-        draw_screen_and_objects(screen, drawable)
+        # Draw game objects at last positions and put directly on screen
+        screen.fill(SCREEN_COLOR)
+        for obj in drawable:
+            obj.draw(screen)
 
         # Draw overlay for game-over prompt
         draw_game_over_overlay(screen, final_score)
@@ -169,6 +192,7 @@ def main():
     try:
         # Misc Variables
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        game_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         clock = pygame.time.Clock()
 
         # Groups
@@ -191,7 +215,9 @@ def main():
         # GAMEPLAY LOOP
         while True:
             # Run game until player and an asteroid collide
-            final_score = play_round(screen, clock, updatable, drawable, stars, asteroids, shots, particles)  # noqa: E501
+            final_score = play_round(
+                screen, game_surface, clock, updatable, drawable, stars, asteroids, shots, particles
+            )  # noqa: E501
 
             # Initiate game-over prompt and get response
             play_again = replay_or_quit(screen, clock, drawable, final_score)
