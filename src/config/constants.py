@@ -31,22 +31,27 @@ RED = (173, 43, 3)
 ORANGE = (255, 165, 0)
 BLUE = (13, 136, 189)
 WHITE = (255, 255, 255)
+LIGHT_GRAY = (204, 204, 204)
 BLACK = (0, 0, 0)
 
 SCREEN_COLOR = BLACK
-STAR_COLORS = [(160, 160, 160), (185, 185, 185), (220, 220, 220), (255, 255, 255)]
-ASTEROID_COLORS = [(60, 60, 60), (75, 75, 75), (90, 90, 90), (105, 105, 105)]
+STAR_COLORS = [(160, 160, 160), (184, 184, 184), (208, 208, 208), (231, 231, 231), WHITE]
+ASTEROID_COLORS = [(81, 81, 81), (93, 93, 93), (106, 106, 106), (118, 118, 118), (130, 130, 130)]
 PLAYER_COLOR = BLUE
 THRUSTER_COLOR = ORANGE
-PARTICLE_COLORS = [RED, (194, 73, 3), (214, 103, 2), (235, 134, 1), ORANGE]
+SHOT_COLORS = [RED, (194, 74, 2), (214, 104, 2), (235, 135, 1), ORANGE]
+PARTICLE_COLORS = SHOT_COLORS + [BLUE]
 SCORE_COLOR = BLUE
 OVERLAY_COLOR = BLACK
 GAME_OVER_COLOR = RED
-PROMPT_COLOR = WHITE
+FINAL_SCORE_COLOR = BLUE
+PROMPT_COLOR = LIGHT_GRAY
 
 # FILE PATHS
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-FONT_GAME_OVER = os.path.join(_BASE_DIR, "assets", "fonts", "game-font.ttf")
+FONT_SPECIAL = os.path.join(_BASE_DIR, "assets", "fonts", "title-font.ttf")
+FONT_SCORE = os.path.join(_BASE_DIR, "assets", "fonts", "score-font.ttf")
+# FONT_BOLD = os.path.join(_BASE_DIR, "assets", "fonts", "bold-font.ttf")
 LOG_DIR = os.path.join(_BASE_DIR, "logs")
 LOG_GAME_STATE = os.path.join(LOG_DIR, "game_state.jsonl")
 LOG_GAME_EVENTS = os.path.join(LOG_DIR, "game_events.jsonl")

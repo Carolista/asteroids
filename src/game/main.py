@@ -4,7 +4,9 @@ import pygame
 
 from ..config.constants import (
     BLACK,
-    FONT_GAME_OVER,
+    FINAL_SCORE_COLOR,
+    FONT_SCORE,
+    FONT_SPECIAL,
     GAME_OVER_COLOR,
     PROMPT_COLOR,
     SCORE_COLOR,
@@ -65,7 +67,7 @@ def draw_screen_and_objects(screen, drawable):
 
 
 def draw_score_panel(screen, score):
-    score_font = pygame.font.SysFont("monospace", 40)
+    score_font = pygame.font.Font(FONT_SCORE, 40)
     score_text = score_font.render(f"{score}", True, SCORE_COLOR)
     screen.blit(score_text, (10, 10))
 
@@ -93,7 +95,7 @@ def play_round(screen, clock, updatable, drawable, stars, asteroids, shots, part
         should_end_game, score = run_collision_check(asteroids, shots, player, score)
 
         if should_end_game:
-            return  # Continue to game-over prompt
+            return score  # Continue to game-over prompt
 
         # Update screen, drawables, and score displays
         draw_screen_and_objects(screen, drawable)
@@ -106,29 +108,33 @@ def play_round(screen, clock, updatable, drawable, stars, asteroids, shots, part
         dt = clock.tick(60) / 1000
 
 
-def draw_game_over_overlay(screen):
+def draw_game_over_overlay(screen, final_score):
     # Semi-transparent overlay
     overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     overlay.set_alpha(200)
     overlay.fill(BLACK)
     screen.blit(overlay, (0, 0))
 
-    # GAME OVER text
-    game_over_font = pygame.font.Font(FONT_GAME_OVER, 60)
+    # Game over text
+    game_over_font = pygame.font.Font(FONT_SPECIAL, 60)
     game_over_text = game_over_font.render("GAME OVER", True, GAME_OVER_COLOR)
-    game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50))
+    game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 70))
     screen.blit(game_over_text, game_over_rect)
 
-    # TODO: Add final score text
+    # Final score text
+    final_score_font = pygame.font.Font(FONT_SCORE, 40)
+    final_score_text = final_score_font.render(f"FINAL SCORE: {final_score}", True, FINAL_SCORE_COLOR)  # noqa: E501
+    final_score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    screen.blit(final_score_text, final_score_rect)
 
     # Prompt text
-    prompt_font = pygame.font.SysFont("monospace", 30)
+    prompt_font = pygame.font.Font(FONT_SPECIAL, 32)
     prompt_text = prompt_font.render("Play again? Y / N", True, PROMPT_COLOR)
-    prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 50))
+    prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60))
     screen.blit(prompt_text, prompt_rect)
 
 
-def replay_or_quit(screen, clock, drawable):
+def replay_or_quit(screen, clock, drawable, final_score):
     while True:
         # Listen for player interactivity
         for event in pygame.event.get():
@@ -144,7 +150,7 @@ def replay_or_quit(screen, clock, drawable):
         draw_screen_and_objects(screen, drawable)
 
         # Draw overlay for game-over prompt
-        draw_game_over_overlay(screen)
+        draw_game_over_overlay(screen, final_score)
 
         # Re-render everything
         pygame.display.flip()
@@ -185,10 +191,10 @@ def main():
         # GAMEPLAY LOOP
         while True:
             # Run game until player and an asteroid collide
-            play_round(screen, clock, updatable, drawable, stars, asteroids, shots, particles)
+            final_score = play_round(screen, clock, updatable, drawable, stars, asteroids, shots, particles)  # noqa: E501
 
             # Initiate game-over prompt and get response
-            play_again = replay_or_quit(screen, clock, drawable)
+            play_again = replay_or_quit(screen, clock, drawable, final_score)
             if not play_again:
                 return  # End program
 
