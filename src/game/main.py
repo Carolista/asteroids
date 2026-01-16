@@ -14,6 +14,7 @@ from ..config.constants import (
     SCREEN_COLOR,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
+    WAVE_COLOR,
 )
 from .asteroid import Asteroid
 from .asteroidfield import AsteroidField
@@ -40,7 +41,7 @@ def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, parti
 
     player = Player(x=SCREEN_WIDTH / 2, y=SCREEN_HEIGHT / 2)
 
-    return player
+    return player, asteroid_field
 
 
 def run_collision_check(asteroids, shots, player, score, shake_intensity):
@@ -86,18 +87,40 @@ def draw_score_panel(screen, score):
     screen.blit(score_text, (10, 10))
 
 
+def draw_wave_text(screen, game_surface, wave_number):
+    wave_font = pygame.font.Font(FONT_SPECIAL, 80)
+    wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
+    wave_rect = wave_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    screen.blit(wave_text, wave_rect)
+
+
 def play_round(
-    screen, game_surface, clock, updatable, drawable, stars, asteroids, shots, particles
-):  # noqa: E501
+    screen, game_surface, clock, player, updatable, drawable, asteroids, shots, asteroid_field  # noqa: E501
+):
     # Reset for new round
-    player = reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles)
     score = 0
     dt = 0
     shake_intensity = 0.0
+    wave_number = 0
+    is_transitioning = False
+    transition_timer = 0                      
 
     # Manage re-rendering and interactive events
     while True:
         log_state()
+        
+        # Check for end of wave
+        if len(asteroids) == 0 and not is_transitioning:
+            is_transitioning = True
+            transition_timer = 2.0
+            wave_number += 1
+
+        if is_transitioning:
+            transition_timer -= dt
+            if transition_timer <= 0:
+                num_to_spawn = min(2 + wave_number, 10)
+                asteroid_field.spawn_wave(num_to_spawn)
+                is_transitioning = False
 
         # Allow game window's close button to end program at any time
         for event in pygame.event.get():
@@ -120,6 +143,10 @@ def play_round(
         shake_intensity = draw_game_surface_and_objects(screen, game_surface, drawable, shake_intensity)  # noqa: E501
         draw_score_panel(screen, score)
 
+        # If between waves
+        if is_transitioning:
+            draw_wave_text(screen, game_surface, wave_number)
+
         # Re-render
         pygame.display.flip()
 
@@ -136,7 +163,7 @@ def draw_game_over_overlay(screen, final_score):
 
     # Game over text
     game_over_font = pygame.font.Font(FONT_SPECIAL, 60)
-    game_over_text = game_over_font.render("GAME OVER", True, GAME_OVER_COLOR)
+    game_over_text = game_over_font.render("G A M E   O V E R", True, GAME_OVER_COLOR)
     game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 70))
     screen.blit(game_over_text, game_over_rect)
 
@@ -214,10 +241,13 @@ def main():
 
         # GAMEPLAY LOOP
         while True:
+
+            player, asteroid_field = reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles)  # noqa: E501
+
             # Run game until player and an asteroid collide
             final_score = play_round(
-                screen, game_surface, clock, updatable, drawable, stars, asteroids, shots, particles
-            )  # noqa: E501
+                screen, game_surface, clock, player, updatable, drawable, asteroids, shots, asteroid_field  # noqa: E501, F821
+            )
 
             # Initiate game-over prompt and get response
             play_again = replay_or_quit(screen, clock, drawable, final_score)

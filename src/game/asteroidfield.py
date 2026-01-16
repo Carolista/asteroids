@@ -7,7 +7,6 @@ from ..config.constants import (
     ASTEROID_KINDS,
     ASTEROID_MAX_RADIUS,
     ASTEROID_MIN_RADIUS,
-    ASTEROID_SPAWN_RATE_SECONDS,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
 )
@@ -43,16 +42,23 @@ class AsteroidField(pygame.sprite.Sprite):
         asteroid = Asteroid(position.x, position.y, radius, color)
         asteroid.velocity = velocity
 
-    def update(self, dt):
-        self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE_SECONDS:
-            self.spawn_timer = 0
-
-            # spawn a new asteroid at a random edge
+    def spawn_wave(self, count, wave_number = 1):
+        for _ in range(count):
             edge = random.choice(self.edges)
-            speed = random.randint(40, 100)
+            base_speed = 30 + (wave_number * 5)
+            speed = random.randint(base_speed, base_speed + 40)
             velocity = edge[0] * speed
             velocity = velocity.rotate(random.randint(-30, 30))
             position = edge[1](random.uniform(0, 1))
-            kind = random.randint(1, ASTEROID_KINDS)
+            
+            # Use a random size (kind) for the new wave
+            if wave_number < 3:
+                kind = ASTEROID_KINDS
+            elif wave_number < 5:
+                kind = random.randint(2, ASTEROID_KINDS)
+            else:
+                kind = random.randint(1, ASTEROID_KINDS)
             self.spawn(ASTEROID_MIN_RADIUS * kind, position, velocity)
+
+    def update(self, dt):
+        pass
