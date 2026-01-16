@@ -16,6 +16,7 @@ class StarField(pygame.sprite.Sprite):
         for _ in range(self.num_stars):
             x = random.uniform(0, SCREEN_WIDTH)
             y = random.uniform(0, SCREEN_HEIGHT)
+            # Managed through containers
             star = Star(x, y)  # noqa: F841
 
     def update(self, dt):

@@ -23,6 +23,7 @@ class CircleShape(pygame.sprite.Sprite):
     def collides_with(self, other):
         return self.position.distance_to(other.position) <= self.radius + other.radius
 
+    # TEMP for debugging
     def __str__(self):
         return f"""
             {self.__class__.__name__}

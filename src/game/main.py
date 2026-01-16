@@ -31,7 +31,7 @@ def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, parti
     shots.empty()
     particles.empty()
 
-    # Once created these two will be managed through their containers
+    # Managed through their containers
     star_field = StarField()  # noqa: F841
     asteroid_field = AsteroidField()  # noqa: F841
 
