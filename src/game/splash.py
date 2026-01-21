@@ -7,24 +7,28 @@ from ..config.constants import (
     ASTEROID_COLORS,
     ASTEROID_MAX_RADIUS,
     ASTEROID_MIN_RADIUS,
-    FONT_SCORE,
-    FONT_SPECIAL,
+    BLUE,
+    FONT_REGULAR,
+    FONT_TITLE,
     SCREEN_COLOR,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
     SHOT_COLORS,
     STAR_COLORS,
+    WHITE,
 )
 from .asteroid import Asteroid
+from .highscores import draw_high_scores_centered
 from .star import Star
 from .starfield import StarField
 
 
 class SplashScreen:
-    def __init__(self):
+    def __init__(self, high_scores=None):
         self.updatable = pygame.sprite.Group()
         self.drawable = pygame.sprite.Group()
         self.asteroids = pygame.sprite.Group()
+        self.high_scores = high_scores if high_scores else []
 
         # Set up containers for Star and Asteroid classes
         Star.containers = self.updatable, self.drawable
@@ -38,7 +42,7 @@ class SplashScreen:
 
         # Color cycling state
         self.color_index = 0
-        self.frames_per_color = 8  # Change color every 8 frames at 60 fps (~130ms)
+        self.frames_per_color = 10  # Change color every 10 frames at 60 fps
         self.frame_counter = 0
         self.forward = True  # Direction of color cycling
 
@@ -53,9 +57,7 @@ class SplashScreen:
             # Add random velocity for drift
             speed = random.uniform(20, 60)
             angle = random.uniform(0, 2 * math.pi)
-            asteroid.velocity = pygame.Vector2(
-                speed * math.cos(angle), speed * math.sin(angle)
-            )
+            asteroid.velocity = pygame.Vector2(speed * math.cos(angle), speed * math.sin(angle))
             self.asteroids.add(asteroid)
 
         # Medium asteroids (size 2, radius ASTEROID_MIN_RADIUS * 2)
@@ -66,9 +68,7 @@ class SplashScreen:
             asteroid = Asteroid(x, y, ASTEROID_MIN_RADIUS * 2, color)
             speed = random.uniform(20, 60)
             angle = random.uniform(0, 2 * math.pi)
-            asteroid.velocity = pygame.Vector2(
-                speed * math.cos(angle), speed * math.sin(angle)
-            )
+            asteroid.velocity = pygame.Vector2(speed * math.cos(angle), speed * math.sin(angle))
             self.asteroids.add(asteroid)
 
         # Small asteroids (size 1, radius ASTEROID_MIN_RADIUS)
@@ -79,9 +79,7 @@ class SplashScreen:
             asteroid = Asteroid(x, y, ASTEROID_MIN_RADIUS, color)
             speed = random.uniform(20, 60)
             angle = random.uniform(0, 2 * math.pi)
-            asteroid.velocity = pygame.Vector2(
-                speed * math.cos(angle), speed * math.sin(angle)
-            )
+            asteroid.velocity = pygame.Vector2(speed * math.cos(angle), speed * math.sin(angle))
             self.asteroids.add(asteroid)
 
     def get_current_color(self, colors_list):
@@ -114,19 +112,49 @@ class SplashScreen:
         # Blit game surface to screen
         screen.blit(game_surface, (0, 0))
 
+        # Calculate vertical spacing for centered layout
+        # ASTEROIDS + gap + HIT ENTER + gap + high scores (5 lines)
+        title_font = pygame.font.Font(FONT_TITLE, 120)
+        prompt_font = pygame.font.Font(FONT_REGULAR, 36)
+        scores_font = pygame.font.Font(FONT_REGULAR, 24)
+
+        # Measure heights
+        title_text_dummy = title_font.render("ASTEROIDS", True, WHITE)
+        title_height = title_text_dummy.get_height()
+        prompt_text_dummy = prompt_font.render("HIT ENTER TO PLAY", True, WHITE)
+        prompt_height = prompt_text_dummy.get_height()
+        scores_height = scores_font.get_linesize()
+
+        # Calculate total height of all elements
+        num_scores = len(self.high_scores) if self.high_scores else 0
+        total_height = (
+            title_height
+            # No gap needed here
+            + prompt_height
+            + 30  # Gap after prompt
+            + (scores_height * num_scores)
+        )
+
+        # Calculate starting y position to center vertically
+        start_y = (SCREEN_HEIGHT - total_height) // 2
+
         # Draw "ASTEROIDS" title
-        title_font = pygame.font.Font(FONT_SPECIAL, 100)
         title_color = self.get_current_color(SHOT_COLORS)
         title_text = title_font.render("ASTEROIDS", True, title_color)
-        title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100))
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, start_y))
         screen.blit(title_text, title_rect)
 
         # Draw "Hit Enter to Play" prompt
-        prompt_font = pygame.font.Font(FONT_SCORE, 32)
         prompt_color = self.get_current_color(STAR_COLORS)
-        prompt_text = prompt_font.render("Hit Enter to Play", True, prompt_color)
-        prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 80))
+        prompt_text = prompt_font.render("HIT ENTER TO PLAY", True, prompt_color)
+        prompt_y = start_y + title_height # No gap needed here
+        prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, prompt_y))
         screen.blit(prompt_text, prompt_rect)
+
+        # Draw high scores if available (centered)
+        if self.high_scores:
+            scores_y = prompt_y + prompt_height + 30
+            draw_high_scores_centered(screen, self.high_scores, SCREEN_WIDTH / 2, scores_y, BLUE)
 
         pygame.display.flip()
         self.update_color_cycle()

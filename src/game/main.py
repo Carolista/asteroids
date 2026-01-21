@@ -5,10 +5,13 @@ import pygame
 
 from ..config.constants import (
     BLACK,
+    BLUE,
     FINAL_SCORE_COLOR,
+    FONT_REGULAR,
     FONT_SCORE,
-    FONT_SPECIAL,
+    FONT_TITLE,
     GAME_OVER_COLOR,
+    HIGH_SCORES_FILE,
     PROMPT_COLOR,
     SCORE_COLOR,
     SCREEN_COLOR,
@@ -18,7 +21,9 @@ from ..config.constants import (
 )
 from .asteroid import Asteroid
 from .asteroidfield import AsteroidField
+from .highscores import HighScoreManager, draw_high_scores_centered
 from .logger import log_event, log_state
+from .name_entry import NameEntryOverlay
 from .particle import Particle
 from .player import Player
 from .shot import Shot
@@ -29,11 +34,10 @@ from .startup import run_startup_script
 
 # TODO: Implement fade in and fade out on wave transition text
 # TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
-# TODO: Add txt or json file to persist high scores and show high score on game over screen
 # TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
-# TODO: Add bombs and mines
+# TODO: Add bombs, mines, and shockwaves
 # TODO: Add invincibility powerup and shield powerup
-# TODO: Add lives with a 1up powerup
+# TODO: Add lives along with a 1-up powerup
 
 
 def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, particles):
@@ -46,7 +50,7 @@ def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, parti
 
     # Managed through its container
     star_field = StarField()  # noqa: F841
-    
+
     asteroid_field = AsteroidField()
 
     player = Player(x=SCREEN_WIDTH / 2, y=SCREEN_HEIGHT / 2)
@@ -98,7 +102,7 @@ def draw_score_panel(screen, score):
 
 
 def draw_wave_text(screen, wave_number):
-    wave_font = pygame.font.Font(FONT_SPECIAL, 80)
+    wave_font = pygame.font.Font(FONT_TITLE, 80)
     wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
     wave_rect = wave_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
     screen.blit(wave_text, wave_rect)
@@ -174,35 +178,84 @@ def play_round(
         dt = clock.tick(60) / 1000
 
 
-def draw_game_over_overlay(screen, final_score):
+def draw_game_over_overlay(screen, final_score, high_scores=None):
     # Semi-transparent overlay
     overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     overlay.set_alpha(200)
     overlay.fill(BLACK)
     screen.blit(overlay, (0, 0))
 
-    # Game over text
-    game_over_font = pygame.font.Font(FONT_SPECIAL, 60)
+    # Set up fonts
+    game_over_font = pygame.font.Font(FONT_TITLE, 80)
+    final_score_font = pygame.font.Font(FONT_SCORE, 48)
+    prompt_font = pygame.font.Font(FONT_REGULAR, 28)
+    scores_font = pygame.font.Font(FONT_REGULAR, 24)
+
+    # Measure heights
+    game_over_text_dummy = game_over_font.render("G A M E   O V E R", True, GAME_OVER_COLOR)
+    game_over_height = game_over_text_dummy.get_height()
+    final_score_text_dummy = final_score_font.render(
+        f"FINAL SCORE: {final_score}", True, FINAL_SCORE_COLOR
+    )
+    final_score_height = final_score_text_dummy.get_height()
+    prompt_text_dummy = prompt_font.render("Play Again?  Y / N", True, PROMPT_COLOR)
+    prompt_height = prompt_text_dummy.get_height()
+    scores_height = scores_font.get_linesize()
+
+    # Calculate total height
+    num_scores = len(high_scores) if high_scores else 0
+    total_height = (
+        game_over_height
+        # No gap needed here
+        + final_score_height
+        + 30  # Gap
+        + prompt_height
+        + 30  # Gap before scores
+        + (scores_height * num_scores)
+    )
+
+    # Calculate starting y position to center vertically
+    start_y = (SCREEN_HEIGHT - total_height) // 2
+
+    # Draw "GAME OVER" text
     game_over_text = game_over_font.render("G A M E   O V E R", True, GAME_OVER_COLOR)
-    game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 70))
+    game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, start_y))
     screen.blit(game_over_text, game_over_rect)
 
-    # Final score text
-    final_score_font = pygame.font.Font(FONT_SCORE, 40)
+    # Draw final score text
     final_score_text = final_score_font.render(
         f"FINAL SCORE: {final_score}", True, FINAL_SCORE_COLOR
-    )  # noqa: E501
-    final_score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    )
+    final_score_y = start_y + game_over_height # No gap needed here
+    final_score_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, final_score_y))
     screen.blit(final_score_text, final_score_rect)
 
-    # Prompt text
-    prompt_font = pygame.font.SysFont("monospace", 32)
+    # Draw prompt text
     prompt_text = prompt_font.render("Play Again?  Y / N", True, PROMPT_COLOR)
-    prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60))
+    prompt_y = final_score_y + final_score_height + 30
+    prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, prompt_y))
     screen.blit(prompt_text, prompt_rect)
 
+    # Draw high scores if available
+    if high_scores:
+        scores_y = prompt_y + prompt_height + 30
+        draw_high_scores_centered(screen, high_scores, SCREEN_WIDTH / 2, scores_y, BLUE)
 
-def replay_or_quit(screen, clock, drawable, final_score):
+
+def replay_or_quit(screen, clock, drawable, final_score, high_score_manager):
+    # Check if this is a high score
+    is_high_score = high_score_manager.is_high_score(final_score)
+
+    # If high score, get name from player
+    if is_high_score:
+        name_entry = NameEntryOverlay()
+        player_name = name_entry.run(screen, clock)
+        if player_name is None:
+            return False  # Player quit during name entry
+        # Add the score to high scores
+        high_score_manager.add_score(player_name, final_score)
+
+    # Show game over screen with high scores
     while True:
         # Listen for player interactivity
         for event in pygame.event.get():
@@ -219,8 +272,8 @@ def replay_or_quit(screen, clock, drawable, final_score):
         for obj in drawable:
             obj.draw(screen)
 
-        # Draw overlay for game-over prompt
-        draw_game_over_overlay(screen, final_score)
+        # Draw overlay for game-over prompt with high scores
+        draw_game_over_overlay(screen, final_score, high_score_manager.get_scores())
 
         # Re-render everything
         pygame.display.flip()
@@ -257,8 +310,11 @@ def main():
 
         run_startup_script()  # console output
 
+        # Initialize high score manager
+        high_score_manager = HighScoreManager(HIGH_SCORES_FILE)
+
         # Show splash screen
-        splash = SplashScreen()
+        splash = SplashScreen(high_score_manager.get_scores())
         should_play = splash.run(screen, game_surface, clock)
         if not should_play:
             return  # User quit from splash screen
@@ -287,7 +343,7 @@ def main():
             )
 
             # Initiate game-over prompt and get response
-            play_again = replay_or_quit(screen, clock, drawable, final_score)
+            play_again = replay_or_quit(screen, clock, drawable, final_score, high_score_manager)
             if not play_again:
                 return  # End program
 

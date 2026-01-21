@@ -37,7 +37,7 @@ BLACK = (0, 0, 0)
 
 SCREEN_COLOR = BLACK
 STAR_COLORS = [(160, 160, 160), (184, 184, 184), (208, 208, 208), (231, 231, 231), WHITE]
-ASTEROID_COLORS = [(81, 81, 81), (93, 93, 93), (106, 106, 106), (118, 118, 118), (130, 130, 130)]
+ASTEROID_COLORS = [(50, 50, 50), (60, 60, 60), (70, 70, 70), (80, 80, 80), (90, 90, 90)]
 PLAYER_COLOR = BLUE
 THRUSTER_COLOR = ORANGE
 SHOT_COLORS = [RED, (194, 74, 2), (214, 104, 2), (235, 135, 1), ORANGE]
@@ -51,9 +51,10 @@ PROMPT_COLOR = LIGHT_GRAY
 
 # FILE PATHS
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-FONT_SPECIAL = os.path.join(_BASE_DIR, "assets", "fonts", "title-font.ttf")
-FONT_SCORE = os.path.join(_BASE_DIR, "assets", "fonts", "score-font.ttf")
-# FONT_BOLD = os.path.join(_BASE_DIR, "assets", "fonts", "bold-font.ttf")
+FONT_REGULAR = os.path.join(_BASE_DIR, "assets", "fonts", "font_regular.otf")
+FONT_SCORE = os.path.join(_BASE_DIR, "assets", "fonts", "font_score.ttf")
+FONT_TITLE = os.path.join(_BASE_DIR, "assets", "fonts", "font_title.ttf")
 LOG_DIR = os.path.join(_BASE_DIR, "logs")
 LOG_GAME_STATE = os.path.join(LOG_DIR, "game_state.jsonl")
 LOG_GAME_EVENTS = os.path.join(LOG_DIR, "game_events.jsonl")
+HIGH_SCORES_FILE = os.path.join(_BASE_DIR, "logs", "high_scores.json")
