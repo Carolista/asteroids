@@ -22,12 +22,12 @@ from .logger import log_event, log_state
 from .particle import Particle
 from .player import Player
 from .shot import Shot
+from .splash import SplashScreen
 from .star import Star
 from .starfield import StarField
 from .startup import run_startup_script
 
 # TODO: Implement fade in and fade out on wave transition text
-# TODO: Create splash screen, larger twinkling stars and larger asteroids with large text and 'Hit Enter to Play'  # noqa: E501
 # TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
 # TODO: Add txt or json file to persist high scores and show high score on game over screen
 # TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
@@ -256,6 +256,16 @@ def main():
         Particle.containers = (particles, updatable, drawable)
 
         run_startup_script()  # console output
+
+        # Show splash screen
+        splash = SplashScreen()
+        should_play = splash.run(screen, game_surface, clock)
+        if not should_play:
+            return  # User quit from splash screen
+
+        # Reset containers after splash screen (splash modifies class-level containers)
+        Star.containers = (stars, updatable, drawable)
+        Asteroid.containers = (asteroids, updatable, drawable)
 
         # GAMEPLAY LOOP
         while True:
