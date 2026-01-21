@@ -6,6 +6,7 @@ from ..config.constants import (
     ASTEROID_COLORS,
     ASTEROID_KINDS,
     ASTEROID_MAX_RADIUS,
+    ASTEROID_MAX_SPEED,
     ASTEROID_MIN_RADIUS,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
@@ -45,7 +46,7 @@ class AsteroidField(pygame.sprite.Sprite):
     def spawn_wave(self, count, wave_number=1):
         for _ in range(count):
             edge = random.choice(self.edges)
-            base_speed = 30 + (wave_number * 5)
+            base_speed = min(30 + (wave_number * 5), ASTEROID_MAX_SPEED)
             speed = random.randint(base_speed, base_speed + 40)
             velocity = edge[0] * speed
             velocity = velocity.rotate(random.randint(-30, 30))

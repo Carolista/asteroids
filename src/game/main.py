@@ -24,9 +24,13 @@ from .player import Player
 from .shot import Shot
 from .star import Star
 from .starfield import StarField
-from .textcontent import startup_text
+from .startup import run_startup_script
 
 # TODO: Implement fade in and fade out on wave transition text
+# TODO: Create splash screen, larger twinkling stars and larger asteroids with large text and 'Hit Enter to Play'  # noqa: E501
+# TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
+# TODO: Add txt or json file to persist high scores and show high score on game over screen
+# TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
 # TODO: Add bombs and mines
 # TODO: Add invincibility powerup and shield powerup
 # TODO: Add lives with a 1up powerup
@@ -40,9 +44,10 @@ def reset_groups_and_objects(updatable, drawable, stars, asteroids, shots, parti
     shots.empty()
     particles.empty()
 
-    # Managed through their containers
+    # Managed through its container
     star_field = StarField()  # noqa: F841
-    asteroid_field = AsteroidField()  # noqa: F841
+    
+    asteroid_field = AsteroidField()
 
     player = Player(x=SCREEN_WIDTH / 2, y=SCREEN_HEIGHT / 2)
 
@@ -227,10 +232,6 @@ def replay_or_quit(screen, clock, drawable, final_score):
 def main():
     pygame.init()
 
-    print(startup_text)  # console output
-
-    # TODO: Create splash screen
-
     try:
         # Misc Variables
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -253,6 +254,8 @@ def main():
         Player.containers = (updatable, drawable)
         Shot.containers = (shots, updatable, drawable)
         Particle.containers = (particles, updatable, drawable)
+
+        run_startup_script()  # console output
 
         # GAMEPLAY LOOP
         while True:

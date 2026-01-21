@@ -8,7 +8,7 @@ from .circleshape import CircleShape
 
 class Particle(CircleShape):
     def __init__(self, x, y):
-        super().__init__(x, y, PARTICLE_LIFESPAN * 10)
+        super().__init__(x, y, PARTICLE_LIFESPAN * 8)
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(
             random.uniform(-1, 1), random.uniform(-1, 1)
@@ -23,7 +23,7 @@ class Particle(CircleShape):
             self.kill()
 
     def draw(self, screen):
-        # As it dies, it gets smaller
-        self.radius = int(self.lifespan * 10)
         if self.radius > 0:
             pygame.draw.circle(screen, self.color, self.position, self.radius)
+        # As it dies, it gets smaller
+        self.radius = int(self.lifespan * 8)
