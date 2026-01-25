@@ -6,27 +6,26 @@ from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 def run_startup_script():
-
     BLUE = "\033[38;2;80;200;239m"
     WHITE = "\033[97m"
     RESET = "\033[0m"
 
     stars_top = [
-        r".           .         .                        .           .           .",
-        r"      .                              .                            .    .",
+        r".           .          o                         .             .           .        ",
+        r"       .           *                   .            *                .    o     .   ",
     ]
 
     title = [
-        r"            __    ____  ____  ____  ____  _____  __  ____   ____         ",
-        r"  .        /  \  / ___)(_  _)( ___)(  _ \(  _  )(  )(  _ \ / ___)        ",
-        r"          /    \ \___ \ (  ) ( _)_ (  __/( (_) )(  )( |_| )\___ \        ",
-        r"     .   (__/\__)(____/ (__) (____)(__\_\(_____)(__)(____/ (____/     .  ",
+        r"            __    _____  _______  _____  ______   ______   _  _____   _____         ",
+        r"  .     .  /  \  / ____)|__   __||  ___||  __  \ /  __  \ | ||  __ \ / ____)   *    ",
+        r"          / /\ \ \____ \   | |   |  ___|| |__/ /(  (__)  )| || |__| )\____ \        ",
+        r"    .    (_/  \_)(_____/   |_|   |_____||_|  \_\ \______/ |_||_____/ (_____/     .  ",
     ]
 
     stars_bottom = [
-        r" .            .              .              .              .            .",
-        r"        o               * .                          *                   ",
-        r"           []                     .                 o            .       ",
+        r" .            .              .         .                     o        .            . ",
+        r"        o              * .                          *                           o .  ",
+        r"           .                         .           .               .      .            ",
     ]
 
     print(WHITE)
@@ -49,12 +48,12 @@ def run_startup_script():
         ("MEM_BANK_A", "OK"),
         ("VECTOR_GEN", "READY"),
         ("THRUSTER_FUEL", "100%"),
-        ("SHIELD_FREQ", "STABLE")
+        ("SHIELD_FREQ", "STABLE"),
     ]
-    
+
     for item, status in checks:
         # The :<15 aligns the text
-        print(f" > {item:<15} ... ", end='', flush=True)
+        print(f" > {item:<15} ... ", end="", flush=True)
         time.sleep(0.4)
         print(f"[{status}]")
 
