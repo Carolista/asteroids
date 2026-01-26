@@ -7,18 +7,20 @@ from ..config.constants import (
     ASTEROID_COLORS,
     ASTEROID_MAX_RADIUS,
     ASTEROID_MIN_RADIUS,
-    BLUE,
+    FINAL_SCORE_COLORS,
     FONT_REGULAR,
+    FONT_SCORE,
     FONT_TITLE,
+    HIGH_SCORES_LIST_COLORS,
+    PROMPT_COLORS,
     SCREEN_COLOR,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
-    SHOT_COLORS,
-    STAR_COLORS,
+    TITLE_COLORS,
     WHITE,
 )
 from .asteroid import Asteroid
-from .highscores import draw_high_scores_centered
+from .highscores import draw_high_scores
 from .star import Star
 from .starfield import StarField
 
@@ -28,50 +30,49 @@ class Screen:
 
     def __init__(
         self,
-        title="",
-        final_score_section="",
-        prompt="",
+        title_content="",
+        final_score_content="",
+        prompt_content="",
+        high_scores_list=None,
         title_font_size=100,
-        regular_font_size=32,
-        scores_font_size=24,
-        title_color=SHOT_COLORS,
-        text_color=STAR_COLORS,
-        scores_color=BLUE,
-        high_scores=None,
+        final_score_font_size=40,
+        prompt_font_size=28,
+        high_scores_list_font_size=24,
     ):
         """
         Initialize a screen with background asteroids and text elements.
 
         Args:
-            title: Main title text (flashes through title_color)
-            final_score_section: Secondary info text (flashes through text_color)
-            prompt: Primary prompt/action text (flashes through text_color)
+            title_content: Main title string (flashes through title_colors)
+            final_score_content: Final score string (flashes through final_score_colors)
+            prompt_content: Primary prompt/action string (flashes through prompt_colors)
+            high_scores_list: List of high score dicts to display
             title_font_size: Size for title font
-            regular_font_size: Size for regular text font
-            scores_font_size: Size for high scores font
-            title_color: List of colors for title cycling (or single color tuple)
-            text_color: List of colors for text cycling (or single color tuple)
-            scores_color: Color for high scores list
-            high_scores: List of high score dicts to display
+            final_score_font_size: Size for final score font
+            prompt_font_size: Size for prompt font
+            high_scores_list_font_size: Size for high scores list font
         """
         self.updatable = pygame.sprite.Group()
         self.drawable = pygame.sprite.Group()
         self.asteroids = pygame.sprite.Group()
 
-        self.title = title
-        self.final_score_section = final_score_section
-        self.prompt = prompt
-        self.high_scores = high_scores if high_scores else []
-        self.scores_color = scores_color
+        # Actual content to be displayed
+        self.title_content = title_content
+        self.final_score_content = final_score_content
+        self.prompt_content = prompt_content
+        self.high_scores_list = high_scores_list if high_scores_list else []
 
         # Font sizes
         self.title_font_size = title_font_size
-        self.regular_font_size = regular_font_size
-        self.scores_font_size = scores_font_size
+        self.final_score_font_size = final_score_font_size
+        self.prompt_font_size = prompt_font_size
+        self.high_scores_list_font_size = high_scores_list_font_size
 
-        # Colors - ensure they're lists for cycling
-        self.title_colors = title_color if isinstance(title_color, list) else [title_color]
-        self.text_colors = text_color if isinstance(text_color, list) else [text_color]
+        # Colors - all are lists of RGB values for cycling
+        self.title_colors = TITLE_COLORS
+        self.final_score_colors = FINAL_SCORE_COLORS
+        self.prompt_colors = PROMPT_COLORS
+        self.high_scores_list_colors = HIGH_SCORES_LIST_COLORS
 
         # Color cycling state
         self.color_index = 0
@@ -126,15 +127,15 @@ class Screen:
         """Get current color from list, cycling forward and backward."""
         return colors_list[self.color_index]
 
-    def update_color_cycle(self):
+    def update_color_cycle(self, colors_list):
         """Update color cycling state."""
         self.frame_counter += 1
         if self.frame_counter >= self.frames_per_color:
             self.frame_counter = 0
             if self.forward:
                 self.color_index += 1
-                if self.color_index >= len(self.title_colors):
-                    self.color_index = len(self.title_colors) - 1
+                if self.color_index >= len(colors_list):
+                    self.color_index = len(colors_list) - 1
                     self.forward = False
             else:
                 self.color_index -= 1
@@ -156,34 +157,33 @@ class Screen:
 
         # Set up fonts
         title_font = pygame.font.Font(FONT_TITLE, self.title_font_size)
-        regular_font = pygame.font.Font(FONT_REGULAR, self.regular_font_size)
-        scores_font = pygame.font.SysFont("monospace", self.scores_font_size)
+        final_score_font = pygame.font.Font(FONT_SCORE, self.final_score_font_size)
+        prompt_font = pygame.font.Font(FONT_REGULAR, self.prompt_font_size)
+        high_scores_list_font = pygame.font.Font(FONT_SCORE, self.high_scores_list_font_size)
 
-        # Measure heights
-        title_text_dummy = title_font.render(self.title, True, WHITE)
+        # Pre-measure heights (these won't be displayed)
+        title_text_dummy = title_font.render(self.title_content, True, WHITE)
         title_height = title_text_dummy.get_height()
+        
+        has_final_score_section = bool(self.final_score_content)
+        if has_final_score_section:
+            final_score_text_dummy = final_score_font.render(self.final_score_content, True, WHITE)
+            final_score_height = final_score_text_dummy.get_height()
 
-        prompt_text_dummy = regular_font.render(self.prompt, True, WHITE)
+        prompt_text_dummy = prompt_font.render(self.prompt_content, True, WHITE)
         prompt_height = prompt_text_dummy.get_height()
 
-        scores_height = scores_font.get_linesize()
+        high_scores_line_height = high_scores_list_font.get_linesize()
+        num_scores = len(self.high_scores_list) if self.high_scores_list else 0
 
-        # Calculate section height only if final_score_section is present
-        has_section = bool(self.final_score_section)
-        section_height = 0
-        if has_section:
-            section_text_dummy = regular_font.render(self.final_score_section, True, WHITE)
-            section_height = section_text_dummy.get_height()
-
-        # Calculate total height for centering
-        num_scores = len(self.high_scores) if self.high_scores else 0
+        # Calculate total height for vertical centering
         total_height = (
             title_height
-            + 30  # Gap
-            + (section_height + 30 if has_section else 0)  # Section + gap (only if present)
+            + 30
+            + (final_score_height + 30 if has_final_score_section else 0)
             + prompt_height
-            + (30 if num_scores > 0 else 0)  # Gap before scores
-            + (scores_height * num_scores)
+            + (30 if num_scores > 0 else 0)
+            + (high_scores_line_height * num_scores)
         )
 
         # Calculate starting y position to center vertically
@@ -191,34 +191,38 @@ class Screen:
 
         # Draw title
         title_color = self.get_current_color(self.title_colors)
-        title_text = title_font.render(self.title, True, title_color)
+        title_text = title_font.render(self.title_content, True, title_color)
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH / 2, start_y))
         screen.blit(title_text, title_rect)
 
         # Draw final score section (if present)
         current_y = start_y + title_height + 30
-        if has_section:
-            section_color = self.get_current_color(self.text_colors)
-            section_text = regular_font.render(self.final_score_section, True, section_color)
-            section_rect = section_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))
-            screen.blit(section_text, section_rect)
-            current_y += section_height + 30
+        if has_final_score_section:
+            final_score_color = self.get_current_color(self.final_score_colors)
+            final_score_text = final_score_font.render(self.final_score_content, True, final_score_color)  # noqa: E501
+            section_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))
+            screen.blit(final_score_text, section_rect)
+            current_y += final_score_height + 30
 
         # Draw prompt
-        prompt_color = self.get_current_color(self.text_colors)
-        prompt_text = regular_font.render(self.prompt, True, prompt_color)
+        prompt_color = self.get_current_color(self.prompt_colors)
+        prompt_text = prompt_font.render(self.prompt_content, True, prompt_color)
         prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))
         screen.blit(prompt_text, prompt_rect)
 
         # Draw high scores if available
-        if self.high_scores:
+        if self.high_scores_list:
             scores_y = current_y + prompt_height + 30
-            draw_high_scores_centered(
-                screen, self.high_scores, SCREEN_WIDTH / 2, scores_y, self.scores_color
+            high_scores_list_color = self.get_current_color(self.high_scores_list_colors)
+            draw_high_scores(
+                screen, self.high_scores_list, 
+                SCREEN_WIDTH / 2, 
+                scores_y, 
+                high_scores_list_color
             )
 
         pygame.display.flip()
-        self.update_color_cycle()
+        self.update_color_cycle(self.high_scores_list_colors)
 
     def run(self, screen, game_surface, clock):
         """Run the screen. Subclasses should override."""

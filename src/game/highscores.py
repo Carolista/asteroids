@@ -1,6 +1,8 @@
 import json
 import os
 
+import pygame
+
 from ..config.constants import FONT_REGULAR
 
 
@@ -60,28 +62,9 @@ class HighScoreManager:
         return self.scores
 
 
-# def draw_high_scores(screen, high_scores, x, y, color):
-#     """Draw high scores list on screen with right-justified scores."""
-#     font = __import__("pygame").font.Font(FONT_REGULAR, 24)
-
-#     for i, entry in enumerate(high_scores):
-#         rank = i + 1
-#         name = entry["name"]
-#         score = str(entry["score"])
-
-#         # Format: "1. NAME            123456"
-#         # Name padded to 16 chars, 4 spaces, score right-justified to 6 chars
-#         name_padded = name.ljust(16)
-#         score_padded = score.rjust(6)
-#         text = f"{rank}. {name_padded}    {score_padded}"
-
-#         score_text = font.render(text, True, color)
-#         screen.blit(score_text, (x, y + i * 30))
-
-
-def draw_high_scores_centered(screen, high_scores, center_x, y, color):
+def draw_high_scores(screen, high_scores, center_x, y, color):
     """Draw high scores list on screen centered horizontally with right-justified scores."""
-    font = __import__("pygame").font.Font(FONT_REGULAR, 24)
+    font = pygame.font.Font(FONT_REGULAR, 24)
 
     for i, entry in enumerate(high_scores):
         rank = i + 1

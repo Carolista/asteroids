@@ -1,5 +1,4 @@
 import random
-import sys
 
 import pygame
 
@@ -13,6 +12,7 @@ from ..config.constants import (
     SCREEN_WIDTH,
     WAVE_COLOR,
 )
+from ..config.funcs import handle_exit
 from .asteroid import Asteroid
 from .asteroidfield import AsteroidField
 from .gameover import GameOverScreen
@@ -98,7 +98,7 @@ def draw_score_panel(screen, score):
 def draw_wave_text(screen, wave_number):
     wave_font = pygame.font.Font(FONT_TITLE, 80)
     wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
-    wave_rect = wave_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    wave_rect = wave_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 150))
     screen.blit(wave_text, wave_rect)
 
 
@@ -141,8 +141,7 @@ def play_round(
         # Allow game window's close button to end program at any time
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("Player closed window.\n")
-                sys.exit(0)
+                handle_exit()
 
         # Update positions
         updatable.update(dt)
@@ -236,7 +235,8 @@ def main():
             game_over_screen = GameOverScreen(final_score, high_score_manager)
             play_again = game_over_screen.run(screen, game_surface, clock)
 
-            # Reset containers after game-over screen (game-over screen modifies class-level containers)
+            # Reset containers after game-over screen 
+            # (game-over screen modifies class-level containers)
             Star.containers = (stars, updatable, drawable)
             Asteroid.containers = (asteroids, updatable, drawable)
 

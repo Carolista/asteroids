@@ -2,12 +2,15 @@ import pygame
 
 from ..config.constants import (
     FONT_REGULAR,
+    FONT_SCORE,
     FONT_TITLE,
-    GAME_OVER_COLOR,
-    LIGHT_GRAY,
-    STAR_COLORS,
+    NAME_ENTRY_COLORS,
+    SCREEN_COLOR,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
     WHITE,
 )
+from ..config.funcs import handle_exit
 from .screen import Screen
 
 
@@ -19,10 +22,9 @@ class GameOverScreen(Screen):
         self.high_score_manager = high_score_manager
         self.is_high_score = high_score_manager.is_high_score(final_score)
         self.player_name = ""
-        # Skip name entry if score is 0 (crashed without any hits)
         self.name_entry_mode = self.is_high_score and final_score > 0
-
-        final_score_section = f"FINAL SCORE: {final_score}"
+        self.name_entry_font_size = 28
+        self.name_entry_colors = NAME_ENTRY_COLORS
 
         # Initialize parent with appropriate text
         if self.name_entry_mode:
@@ -31,20 +33,16 @@ class GameOverScreen(Screen):
             prompt = "Play Again?  Y / N"
 
         super().__init__(
-            title="G A M E   O V E R",
-            final_score_section=final_score_section,
-            prompt=prompt,
-            title_font_size=60,
-            regular_font_size=32,
-            scores_font_size=24,
-            title_color=GAME_OVER_COLOR,
-            text_color=STAR_COLORS,
-            high_scores=high_score_manager.get_scores() if not self.name_entry_mode else [],
+            title_content="G A M E  O V E R",
+            final_score_content=f"FINAL SCORE: {final_score}",
+            prompt_content=prompt,
+            high_scores_list=high_score_manager.get_scores() if not self.name_entry_mode else [],
+            title_font_size=80,
         )
 
     def draw_name_entry(self, screen, game_surface):
         """Draw the game over screen with name entry field."""
-        game_surface.fill((0, 0, 0))
+        game_surface.fill(SCREEN_COLOR)
 
         # Update and draw background objects
         self.updatable.update(1 / 60)
@@ -55,67 +53,81 @@ class GameOverScreen(Screen):
         screen.blit(game_surface, (0, 0))
 
         # Set up fonts
-        title_font = pygame.font.Font(FONT_TITLE, 60)
-        regular_font = pygame.font.Font(FONT_REGULAR, 32)
+        title_font = pygame.font.Font(FONT_TITLE, self.title_font_size)
+        final_score_font = pygame.font.Font(FONT_SCORE, self.final_score_font_size)
+        prompt_font = pygame.font.Font(FONT_REGULAR, self.prompt_font_size)
+        name_entry_font = pygame.font.Font(FONT_REGULAR, self.name_entry_font_size)
 
-        # Measure heights
-        title_text_dummy = title_font.render(self.title, True, WHITE)
+        # Pre-measure heights (these won't be displayed)
+        title_text_dummy = title_font.render(self.title_content, True, WHITE)
         title_height = title_text_dummy.get_height()
-        section_text_dummy = regular_font.render(self.final_score_section, True, WHITE)
-        section_height = section_text_dummy.get_height()
-        prompt_text_dummy = regular_font.render(self.prompt, True, WHITE)
-        prompt_height = prompt_text_dummy.get_height()
-        display_name_input = self.player_name if self.player_name else "_"
-        name_text_dummy = regular_font.render(display_name_input, True, WHITE)
-        name_height = name_text_dummy.get_height()
 
-        # Calculate total height for centering
-        total_height = title_height + 30 + section_height + 30 + prompt_height + 30 + name_height
+        final_score_text_dummy = final_score_font.render(self.final_score_content, True, WHITE)
+        final_score_height = final_score_text_dummy.get_height()
+
+        prompt_text_dummy = prompt_font.render(self.prompt_content, True, WHITE)
+        prompt_height = prompt_text_dummy.get_height()
+
+        name_entry_content = self.player_name if self.player_name else "_"
+        name_text_dummy = name_entry_font.render(name_entry_content, True, WHITE)
+        name_entry_height = name_text_dummy.get_height()
+
+        # Calculate total height for vertical centering
+        total_height = (
+            title_height
+            + 30
+            + final_score_height + 30
+            + prompt_height
+            + 30
+            + name_entry_height
+        )
 
         # Calculate starting y position to center vertically
-        start_y = (screen.get_height() - total_height) // 2
+        start_y = (SCREEN_HEIGHT - total_height) // 2
 
         # Draw title
         title_color = self.get_current_color(self.title_colors)
-        title_text = title_font.render(self.title, True, title_color)
+        title_text = title_font.render(self.title_content, True, title_color)
         title_rect = title_text.get_rect(center=(screen.get_width() / 2, start_y))
         screen.blit(title_text, title_rect)
 
-        # Draw high score section
-        section_color = self.get_current_color(self.text_colors)
-        section_text = regular_font.render(self.final_score_section, True, section_color)
-        section_y = start_y + title_height + 30
-        section_rect = section_text.get_rect(center=(screen.get_width() / 2, section_y))
-        screen.blit(section_text, section_rect)
+        # Draw final score section
+        current_y = start_y + title_height + 30
+        final_score_color = self.get_current_color(self.final_score_colors)
+        final_score_text = final_score_font.render(self.final_score_content, True, final_score_color)  # noqa: E501
+        final_score_section_rect = final_score_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))
+        screen.blit(final_score_text, final_score_section_rect)
 
         # Draw prompt
-        prompt_color = self.get_current_color(self.text_colors)
-        prompt_text = regular_font.render(self.prompt, True, prompt_color)
-        prompt_y = section_y + section_height + 30
-        prompt_rect = prompt_text.get_rect(center=(screen.get_width() / 2, prompt_y))
+        current_y += final_score_height + 30
+        prompt_color = self.get_current_color(self.prompt_colors)
+        prompt_text = prompt_font.render(self.prompt_content, True, prompt_color)
+        prompt_rect = prompt_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))
         screen.blit(prompt_text, prompt_rect)
 
         # Draw name input with cursor
-        display_name = self.player_name if self.player_name else "_"
-        name_text = regular_font.render(display_name, True, (100, 200, 255))
-        name_y = prompt_y + prompt_height + 30
-        name_rect = name_text.get_rect(center=(screen.get_width() / 2, name_y))
-        screen.blit(name_text, name_rect)
+        current_y += prompt_height + 30
+        name_entry_content = self.player_name if self.player_name else "_"
+        name_entry_color = self.get_current_color(self.name_entry_colors)
+        name_entry_text = name_entry_font.render(name_entry_content, True, name_entry_color)
+        name_rect = name_entry_text.get_rect(center=(screen.get_width() / 2, current_y))
+        screen.blit(name_entry_text, name_rect)
 
         # Draw instructions
+        current_y += name_entry_height + 30
         instructions_font = pygame.font.SysFont("monospace", 16)
         instructions_text = instructions_font.render(
             "(Max 16 characters - Press ENTER to confirm)",
             True,
-            LIGHT_GRAY,
+            WHITE,
         )
         instructions_rect = instructions_text.get_rect(
-            center=(screen.get_width() / 2, name_y + name_height + 20)
+            center=(screen.get_width() / 2, current_y)
         )
         screen.blit(instructions_text, instructions_rect)
 
         pygame.display.flip()
-        self.update_color_cycle()
+        self.update_color_cycle(self.high_scores_list_colors)
 
     def run(self, screen, game_surface, clock):
         """Run the game over screen, handling name entry if needed."""
@@ -125,16 +137,15 @@ class GameOverScreen(Screen):
             while not name_entry_complete:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        return False
+                        handle_exit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and len(self.player_name) > 0:
                             # Save the score and switch to play again mode
-                            self.high_score_manager.add_score(self.player_name, self.final_score)
+                            self.high_score_manager.add_score(self.player_name, self.final_score)  # noqa: E501
                             self.name_entry_mode = False
                             # Update screen for play again mode
-                            self.final_score_section = f"FINAL SCORE: {self.final_score}"
-                            self.prompt = "Play Again?  Y / N"
-                            self.high_scores = self.high_score_manager.get_scores()
+                            self.prompt_content = "Play Again?  Y / N"
+                            self.high_scores_list = self.high_score_manager.get_scores()
                             name_entry_complete = True
                         elif event.key == pygame.K_BACKSPACE:
                             self.player_name = self.player_name[:-1]
@@ -151,7 +162,7 @@ class GameOverScreen(Screen):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return False
+                    handle_exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_y:
                         return True
