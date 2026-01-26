@@ -76,7 +76,7 @@ class Screen:
 
         # Color cycling state
         self.color_index = 0
-        self.frames_per_color = 10
+        self.frames_per_color = 4
         self.frame_counter = 0
         self.forward = True
 
