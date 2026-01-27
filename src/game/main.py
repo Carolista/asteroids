@@ -203,7 +203,7 @@ def main():
         high_score_manager = HighScoreManager(HIGH_SCORES_FILE)
 
         # Show splash screen
-        splash = SplashScreen(high_score_manager.get_scores())
+        splash = SplashScreen(high_score_manager)
         should_play = splash.run(screen, game_surface, clock)
         if not should_play:
             return  # User quit from splash screen

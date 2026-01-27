@@ -21,7 +21,6 @@ class Section:
         self.text_content = text_content
 
     def update_current_color(self, color_index):
-        print(f'current index for {self.text_content} is {color_index}')
         self.current_color = self.colors[color_index]
 
     def update_render_text(self):

@@ -1,9 +1,9 @@
 import json
 import os
 
-import pygame
+from src.config.constants import FONT_SCORE, HIGH_SCORES_LIST_COLORS
 
-from ..config.constants import FONT_REGULAR
+from .section import Section
 
 
 class HighScoreManager:
@@ -12,7 +12,6 @@ class HighScoreManager:
         self.scores = self.load_scores()
 
     def load_scores(self):
-        """Load high scores from file or return empty list if file doesn't exist."""
         if os.path.exists(self.high_scores_file):
             try:
                 with open(self.high_scores_file, "r") as f:
@@ -22,19 +21,16 @@ class HighScoreManager:
         return []
 
     def save_scores(self):
-        """Save high scores to file."""
         os.makedirs(os.path.dirname(self.high_scores_file), exist_ok=True)
         with open(self.high_scores_file, "w") as f:
             json.dump(self.scores, f, indent=2)
 
     def is_high_score(self, score):
-        """Check if a score qualifies for the high score list."""
         if len(self.scores) < 5:
             return True
         return score > self.scores[-1]["score"]
 
     def get_rank(self, score):
-        """Get the rank position for a score (-1 if not in top 5)."""
         if not self.is_high_score(score):
             return -1
         for i, entry in enumerate(self.scores):
@@ -43,7 +39,6 @@ class HighScoreManager:
         return len(self.scores)
 
     def add_score(self, name, score):
-        """Add a score to the high score list (assumes it qualifies)."""
         rank = self.get_rank(score)
         if rank == -1:
             return
@@ -58,25 +53,28 @@ class HighScoreManager:
         self.save_scores()
 
     def get_scores(self):
-        """Return the current high score list."""
         return self.scores
 
+    def get_high_score_sections(self):
+        high_score_sections = []
 
-def draw_high_scores(screen, high_scores, center_x, y, color):
-    """Draw high scores list on screen centered horizontally with right-justified scores."""
-    font = pygame.font.Font(FONT_REGULAR, 24)
+        for i, entry in enumerate(self.scores):
+            rank = i + 1
+            name = entry["name"].upper()
+            score = str(entry["score"]).upper()
 
-    for i, entry in enumerate(high_scores):
-        rank = i + 1
-        name = entry["name"].upper()
-        score = str(entry["score"]).upper()
+            # Format: "1. NAME            123456"
+            name_padded = name.ljust(16)
+            score_padded = score.rjust(6)
+            high_score_content = f"{rank}. {name_padded}    {score_padded}"
 
-        # Format: "1. NAME            123456"
-        # Name padded to 16 chars, 4 spaces, score right-justified to 6 chars
-        name_padded = name.ljust(16)
-        score_padded = score.rjust(6)
-        text = f"{rank}. {name_padded}    {score_padded}"
+            new_section = Section(
+                text_content=high_score_content,
+                font_name=FONT_SCORE,
+                font_size=28,
+                colors=HIGH_SCORES_LIST_COLORS,
+                gap=0,
+            )
+            high_score_sections.append(new_section)
 
-        score_text = font.render(text, True, color)
-        score_rect = score_text.get_rect(center=(center_x, y + i * 30))
-        screen.blit(score_text, score_rect)
+        return high_score_sections

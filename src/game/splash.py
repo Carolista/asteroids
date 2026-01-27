@@ -15,11 +15,12 @@ class SplashScreen(Screen):
 
         self.title_section = Section(text_content="ASTEROIDS", font_name=FONT_TITLE, font_size=100, colors=TITLE_COLORS, gap=0)  # noqa: E501
         self.prompt_section = Section(text_content="Hit Enter to Play", font_name=FONT_REGULAR, font_size=36, colors=PROMPT_COLORS)  # noqa: E501
-        self.high_scores_section = None # FIXME: replace high_score_manager.draw_high_scores() with function to return sections to be concatenated (only needed once for this class) # noqa: E501
+        self.high_score_sections = high_score_manager.get_high_score_sections()
 
         self.sections.append(self.title_section)
         self.sections.append(self.prompt_section)
-        # self.sections.append(self.high_scores_section)
+
+        self.sections += self.high_score_sections
 
     def run(self, screen, game_surface, clock):
         """Run the splash screen until Enter is pressed."""
