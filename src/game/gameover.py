@@ -119,7 +119,9 @@ class GameOverScreen(Screen):
                         ):
                             self.player_name += event.unicode
 
-                        self.name_entry_section.text_content = self.player_name
+                        # Display underscore placeholder when empty, but don't store it
+                        display_name = self.player_name if self.player_name else "_"
+                        self.name_entry_section.text_content = display_name
                     else:
                         if event.key == pygame.K_y:
                             return True
