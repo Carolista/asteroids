@@ -3,8 +3,10 @@ import random
 import pygame
 
 from ..config.constants import (
+    FONT_REGULAR,
     FONT_SCORE,
     FONT_TITLE,
+    HIGH_SCORE_BANNER_COLOR,
     HIGH_SCORES_FILE,
     SCORE_COLOR,
     SCREEN_COLOR,
@@ -28,7 +30,6 @@ from .systems.logger import log_event, log_state
 from .systems.startup import run_startup_script
 
 # TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
-# TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
 # TODO: Add bombs, mines, and shockwaves
 # TODO: Add invincibility powerup and shield powerup
 # TODO: Add lives along with a 1-up powerup
@@ -113,6 +114,7 @@ def play_round(
     shots,
     asteroid_field,
     fade,
+    high_score_manager,
     first_wave=False,  # noqa: E501
 ):
     # Reset for new round
@@ -122,6 +124,16 @@ def play_round(
     wave_number = 0
     is_transitioning = False
     wave_text_shown = first_wave  # Skip wave text for first wave
+
+    # High score banner tracking
+    high_score_banner_shown = False
+    lowest_high_score = (
+        high_score_manager.scores[-1]["score"] if len(high_score_manager.scores) == 5 else 0
+    )
+
+    # Non-blocking text fade state
+    banner_fade_state = None  # {elapsed, phase, text, position, total_duration}
+    wave_fade_state = None  # {elapsed, phase, text, position, total_duration}
 
     # Manage re-rendering and interactive events
     while True:
@@ -134,25 +146,19 @@ def play_round(
             wave_text_shown = False
 
         if is_transitioning and not wave_text_shown:
-            # Show wave text with fade in/out
+            # Initialize wave text fade state
             wave_font = pygame.font.Font(FONT_TITLE, 80)
             wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
             position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 150)
 
-            # Take snapshot of current game state
-            shake_intensity = draw_game_surface_and_objects(
-                screen, game_surface, drawable, shake_intensity
-            )
-            draw_score_panel(screen, score)
-            pygame.display.flip()
-
-            # Fade wave text in and out
-            fade.fade_text_in_out(screen, wave_text, position, hold_duration=0.5)
-
-            # Now spawn asteroids
-            num_to_spawn = min(2 + wave_number, 10)
-            asteroid_field.spawn_wave(num_to_spawn)
-            is_transitioning = False
+            wave_fade_state = {
+                "elapsed": 0.0,
+                "phase": "fade_in",  # fade_in, hold, fade_out, done
+                "text": wave_text,
+                "position": position,
+                "fade_duration": 0.5,
+                "hold_duration": 0.5,
+            }
             wave_text_shown = True
 
         # Allow game window's close button to end program at any time
@@ -168,6 +174,23 @@ def play_round(
             asteroids, shots, player, score, shake_intensity
         )  # noqa: E501
 
+        # Initialize high score banner fade when passing the threshold
+        if not high_score_banner_shown and lowest_high_score > 0 and score > lowest_high_score:
+            high_score_banner_shown = True
+
+            banner_font = pygame.font.Font(FONT_REGULAR, 18)
+            banner_text = banner_font.render("NEW HIGH SCORE!", True, HIGH_SCORE_BANNER_COLOR)
+            position = (110, 75)  # Just below score display at top left
+
+            banner_fade_state = {
+                "elapsed": 0.0,
+                "phase": "fade_in",
+                "text": banner_text,
+                "position": position,
+                "fade_duration": 0.5,
+                "hold_duration": 2.0,
+            }
+
         if should_end_game:
             # Fade out before game over
             fade.fade_out(screen, game_surface, drawable, clock)
@@ -179,9 +202,83 @@ def play_round(
         )  # noqa: E501
         draw_score_panel(screen, score)
 
-        # If between waves
-        if is_transitioning:
-            draw_wave_text(screen, wave_number)
+        # Update and render banner fade if active
+        if banner_fade_state:
+            banner_fade_state["elapsed"] += dt
+
+            if banner_fade_state["phase"] == "fade_in":
+                if banner_fade_state["elapsed"] < banner_fade_state["fade_duration"]:
+                    progress = banner_fade_state["elapsed"] / banner_fade_state["fade_duration"]
+                    alpha = int(progress * 255)
+                    banner_fade_state["text"].set_alpha(alpha)
+                    text_rect = banner_fade_state["text"].get_rect(
+                        center=banner_fade_state["position"]
+                    )
+                    screen.blit(banner_fade_state["text"], text_rect)
+                else:
+                    banner_fade_state["phase"] = "hold"
+                    banner_fade_state["elapsed"] = 0.0
+
+            elif banner_fade_state["phase"] == "hold":
+                if banner_fade_state["elapsed"] < banner_fade_state["hold_duration"]:
+                    banner_fade_state["text"].set_alpha(255)
+                    text_rect = banner_fade_state["text"].get_rect(
+                        center=banner_fade_state["position"]
+                    )
+                    screen.blit(banner_fade_state["text"], text_rect)
+                else:
+                    banner_fade_state["phase"] = "fade_out"
+                    banner_fade_state["elapsed"] = 0.0
+
+            elif banner_fade_state["phase"] == "fade_out":
+                if banner_fade_state["elapsed"] < banner_fade_state["fade_duration"]:
+                    progress = banner_fade_state["elapsed"] / banner_fade_state["fade_duration"]
+                    alpha = int((1 - progress) * 255)
+                    banner_fade_state["text"].set_alpha(alpha)
+                    text_rect = banner_fade_state["text"].get_rect(
+                        center=banner_fade_state["position"]
+                    )
+                    screen.blit(banner_fade_state["text"], text_rect)
+                else:
+                    banner_fade_state = None  # Done
+
+        # Update and render wave fade if active
+        if wave_fade_state:
+            wave_fade_state["elapsed"] += dt
+
+            if wave_fade_state["phase"] == "fade_in":
+                if wave_fade_state["elapsed"] < wave_fade_state["fade_duration"]:
+                    progress = wave_fade_state["elapsed"] / wave_fade_state["fade_duration"]
+                    alpha = int(progress * 255)
+                    wave_fade_state["text"].set_alpha(alpha)
+                    text_rect = wave_fade_state["text"].get_rect(center=wave_fade_state["position"])
+                    screen.blit(wave_fade_state["text"], text_rect)
+                else:
+                    wave_fade_state["phase"] = "hold"
+                    wave_fade_state["elapsed"] = 0.0
+
+            elif wave_fade_state["phase"] == "hold":
+                if wave_fade_state["elapsed"] < wave_fade_state["hold_duration"]:
+                    wave_fade_state["text"].set_alpha(255)
+                    text_rect = wave_fade_state["text"].get_rect(center=wave_fade_state["position"])
+                    screen.blit(wave_fade_state["text"], text_rect)
+                else:
+                    wave_fade_state["phase"] = "fade_out"
+                    wave_fade_state["elapsed"] = 0.0
+
+            elif wave_fade_state["phase"] == "fade_out":
+                if wave_fade_state["elapsed"] < wave_fade_state["fade_duration"]:
+                    progress = wave_fade_state["elapsed"] / wave_fade_state["fade_duration"]
+                    alpha = int((1 - progress) * 255)
+                    wave_fade_state["text"].set_alpha(alpha)
+                    text_rect = wave_fade_state["text"].get_rect(center=wave_fade_state["position"])
+                    screen.blit(wave_fade_state["text"], text_rect)
+                else:
+                    # Fade complete - spawn asteroids
+                    num_to_spawn = min(2 + wave_number, 10)
+                    asteroid_field.spawn_wave(num_to_spawn)
+                    is_transitioning = False
+                    wave_fade_state = None  # Done
 
         # Re-render
         pygame.display.flip()
@@ -258,6 +355,7 @@ def main():
                 shots,
                 asteroid_field,
                 fade,
+                high_score_manager,
                 first_wave=True,  # noqa: E501, F821
             )
 
