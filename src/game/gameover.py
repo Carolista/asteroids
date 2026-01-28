@@ -19,12 +19,13 @@ from .screen import Screen
 class GameOverScreen(Screen):
     """Game over screen with optional high score name entry."""
 
-    def __init__(self, final_score, high_score_manager):
+    def __init__(self, final_score, high_score_manager, fade):
         super().__init__()
 
         self.final_score = final_score
         self.high_score_manager = high_score_manager
         self.is_high_score = high_score_manager.is_high_score(final_score)
+        self.fade = fade
 
         self.player_name = ""
         self.name_entry_mode = self.is_high_score and final_score > 0
@@ -105,11 +106,36 @@ class GameOverScreen(Screen):
                     if self.name_entry_mode:
                         if event.key == pygame.K_RETURN and len(self.player_name) > 0:
                             self.high_score_manager.add_score(self.player_name, self.final_score)
+
+                            # Store old sections and fade them out
+                            old_sections = self.sections
+                            self.fade.fade_text_out(
+                                screen,
+                                game_surface,
+                                self.drawable,
+                                self.updatable,
+                                old_sections,
+                                self.color_index,
+                                clock,
+                            )
+
+                            # Update sections to show high scores
                             self.sections = (
                                 self.replay_mode_sections
                                 + self.high_score_manager.get_high_score_sections()
-                            )  # noqa: E501
+                            )
                             self.name_entry_mode = False
+
+                            # Fade in new high scores sections
+                            self.fade.fade_text_in(
+                                screen,
+                                game_surface,
+                                self.drawable,
+                                self.updatable,
+                                self.sections,
+                                self.color_index,
+                                clock,
+                            )
                         elif event.key == pygame.K_BACKSPACE:
                             self.player_name = self.player_name[:-1]
                         elif (

@@ -15,6 +15,7 @@ from ..config.constants import (
 from ..config.funcs import handle_exit
 from .asteroid import Asteroid
 from .asteroidfield import AsteroidField
+from .fade import Fade
 from .gameover import GameOverScreen
 from .highscores import HighScoreManager
 from .logger import log_event, log_state
@@ -26,7 +27,6 @@ from .star import Star
 from .starfield import StarField
 from .startup import run_startup_script
 
-# TODO: Implement fade in and fade out on wave transition text
 # TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
 # TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
 # TODO: Add bombs, mines, and shockwaves
@@ -111,7 +111,9 @@ def play_round(
     drawable,
     asteroids,
     shots,
-    asteroid_field,  # noqa: E501
+    asteroid_field,
+    fade,
+    first_wave=False,  # noqa: E501
 ):
     # Reset for new round
     score = 0
@@ -119,7 +121,7 @@ def play_round(
     shake_intensity = 0.0
     wave_number = 0
     is_transitioning = False
-    transition_timer = 0
+    wave_text_shown = first_wave  # Skip wave text for first wave
 
     # Manage re-rendering and interactive events
     while True:
@@ -128,15 +130,30 @@ def play_round(
         # Check for end of wave
         if len(asteroids) == 0 and not is_transitioning:
             is_transitioning = True
-            transition_timer = 2.0
             wave_number += 1
+            wave_text_shown = False
 
-        if is_transitioning:
-            transition_timer -= dt
-            if transition_timer <= 0:
-                num_to_spawn = min(2 + wave_number, 10)
-                asteroid_field.spawn_wave(num_to_spawn)
-                is_transitioning = False
+        if is_transitioning and not wave_text_shown:
+            # Show wave text with fade in/out
+            wave_font = pygame.font.Font(FONT_TITLE, 80)
+            wave_text = wave_font.render(f"WAVE {wave_number}", True, WAVE_COLOR)
+            position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 150)
+
+            # Take snapshot of current game state
+            shake_intensity = draw_game_surface_and_objects(
+                screen, game_surface, drawable, shake_intensity
+            )
+            draw_score_panel(screen, score)
+            pygame.display.flip()
+
+            # Fade wave text in and out
+            fade.fade_text_in_out(screen, wave_text, position, hold_duration=0.5)
+
+            # Now spawn asteroids
+            num_to_spawn = min(2 + wave_number, 10)
+            asteroid_field.spawn_wave(num_to_spawn)
+            is_transitioning = False
+            wave_text_shown = True
 
         # Allow game window's close button to end program at any time
         for event in pygame.event.get():
@@ -152,6 +169,8 @@ def play_round(
         )  # noqa: E501
 
         if should_end_game:
+            # Fade out before game over
+            fade.fade_out(screen, game_surface, drawable, clock)
             return score  # Continue to game-over prompt
 
         # Update screen, drawables, and score displays
@@ -202,6 +221,9 @@ def main():
         # Initialize high score manager
         high_score_manager = HighScoreManager(HIGH_SCORES_FILE)
 
+        # Initialize fade effect
+        fade = Fade(duration=0.5)
+
         # Show splash screen
         splash = SplashScreen(high_score_manager)
         should_play = splash.run(screen, game_surface, clock)
@@ -213,10 +235,16 @@ def main():
         Asteroid.containers = (asteroids, updatable, drawable)
 
         # GAMEPLAY LOOP
+        first_game = True
         while True:
             player, asteroid_field = reset_groups_and_objects(
                 updatable, drawable, stars, asteroids, shots, particles
             )  # noqa: E501
+
+            # Fade in from black to gameplay (only on first game)
+            if first_game:
+                fade.fade_in(screen, game_surface, drawable, clock)
+                first_game = False
 
             # Run game until player and an asteroid collide
             final_score = play_round(
@@ -228,14 +256,16 @@ def main():
                 drawable,
                 asteroids,
                 shots,
-                asteroid_field,  # noqa: E501, F821
+                asteroid_field,
+                fade,
+                first_wave=True,  # noqa: E501, F821
             )
 
             # Initiate game-over screen and get response
-            game_over_screen = GameOverScreen(final_score, high_score_manager)
+            game_over_screen = GameOverScreen(final_score, high_score_manager, fade)
             play_again = game_over_screen.run(screen, game_surface, clock)
 
-            # Reset containers after game-over screen 
+            # Reset containers after game-over screen
             # (game-over screen modifies class-level containers)
             Star.containers = (stars, updatable, drawable)
             Asteroid.containers = (asteroids, updatable, drawable)
