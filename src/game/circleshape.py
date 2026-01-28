@@ -1,32 +1,16 @@
-import pygame
+from .shape import Shape
 
 
-# Base class for game objects
-class CircleShape(pygame.sprite.Sprite):
+class CircleShape(Shape):
+    """Circular game object with radius-based collision."""
+
     def __init__(self, x, y, radius):
-        if hasattr(self, "containers"):
-            super().__init__(self.containers)
-        else:
-            super().__init__()
-        self.position = pygame.Vector2(x, y)
-        self.velocity = pygame.Vector2(0, 0)
-        self.radius = radius
-
-    def draw(self, screen):
-        # subclasses must override
-        pass
-
-    def update(self, dt):
-        # subclasses must override
-        pass
+        super().__init__(x, y, radius)
+        self.radius = radius  # Alias for size
 
     def collides_with(self, other):
+        """Check circle-to-circle collision."""
+        if not hasattr(other, "radius"):
+            # If other is not a circle, delegate to its collision method
+            return other.collides_with(self)
         return self.position.distance_to(other.position) <= self.radius + other.radius
-
-    # TEMP for debugging
-    def __str__(self):
-        return f"""
-            {self.__class__.__name__}
-            position: ({self.position.x}, {self.position.y})
-            velocity: {self.velocity.magnitude()}
-            """

@@ -16,36 +16,38 @@ from ..config.constants import (
     SCREEN_WIDTH,
     THRUSTER_COLOR,
 )
-from .circleshape import CircleShape
 from .shot import Shot
+from .triangleshape import TriangleShape
 
-# TODO: Make hit box triangular instead of using circle
 
-
-class Player(CircleShape):
+class Player(TriangleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
-        self.rotation = 0
         self.current_rotation_speed = 0
         self.acceleration = PLAYER_ACCELERATION
         self.drag = PLAYER_DRAG
         self.shot_timer = 0
 
-    def triangle(self):
+    def get_triangle_points(self):
+        """Get the three vertices of the player's triangle."""
         forward = pygame.Vector2(0, -1).rotate(self.rotation)
-        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
-        a = self.position + forward * self.radius
-        b = self.position - forward * self.radius - right
-        c = self.position - forward * self.radius + right
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.size / 1.5
+        a = self.position + forward * self.size
+        b = self.position - forward * self.size - right
+        c = self.position - forward * self.size + right
         return [a, b, c]
+
+    def triangle(self):
+        """Alias for backward compatibility."""
+        return self.get_triangle_points()
 
     def thruster_flame(self):
         backward = pygame.Vector2(0, 1).rotate(self.rotation)
 
-        flame_root = self.position + backward * (self.radius * 0.8)
-        flame_length = self.radius * random.uniform(0.5, 1.2)
+        flame_root = self.position + backward * (self.size * 0.8)
+        flame_length = self.size * random.uniform(0.5, 1.2)
         flame_tip = flame_root + backward * flame_length
-        side_width = self.radius / 3
+        side_width = self.size / 3
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * side_width
 
         a = flame_root - right
