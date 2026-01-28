@@ -13,13 +13,26 @@ class SplashScreen(Screen):
     def __init__(self, high_score_manager):
         super().__init__()
 
-        self.title_section = Section(text_content="ASTEROIDS", font_name=FONT_TITLE, font_size=100, colors=TITLE_COLORS, gap=0)  # noqa: E501
-        self.prompt_section = Section(text_content="Hit Enter to Play", font_name=FONT_REGULAR, font_size=36, colors=PROMPT_COLORS)  # noqa: E501
-        self.high_score_sections = high_score_manager.get_high_score_sections()
+        self.high_score_manager = high_score_manager
 
+        self.title_section = Section(
+            text_content="ASTEROIDS",
+            font_name=FONT_TITLE,
+            font_size=100,
+            colors=TITLE_COLORS,
+            gap=0,
+        )  # noqa: E501
         self.sections.append(self.title_section)
+
+        self.prompt_section = Section(
+            text_content="Hit Enter to Play",
+            font_name=FONT_REGULAR,
+            font_size=32,
+            colors=PROMPT_COLORS,
+        )  # noqa: E501
         self.sections.append(self.prompt_section)
 
+        self.high_score_sections = self.high_score_manager.get_high_score_sections()
         self.sections += self.high_score_sections
 
     def run(self, screen, game_surface, clock):
