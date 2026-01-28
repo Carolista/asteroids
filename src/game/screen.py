@@ -17,8 +17,9 @@ from .star import Star
 from .starfield import StarField
 
 
-# Abstract parent class for various non-gameplay screens
 class Screen:
+    """Base class for non-gameplay screens with animated backgrounds."""
+
     def __init__(self):
         # Manage objects through groups
         self.updatable = pygame.sprite.Group()
@@ -46,6 +47,7 @@ class Screen:
         self._create_background_asteroids(6, 8, ASTEROID_MIN_RADIUS)
 
     def _create_background_asteroids(self, min_n, max_n, radius):
+        """Spawn drifting asteroids for background."""
         for _ in range(random.randint(min_n, max_n)):
             x = random.uniform(0, SCREEN_WIDTH)
             y = random.uniform(0, SCREEN_HEIGHT)
@@ -57,6 +59,7 @@ class Screen:
             self.asteroids.add(asteroid)
 
     def update_color_cycle(self, colors_list):
+        """Cycle through color list forward and backward."""
         self.frame_counter += 1
         if self.frame_counter >= self.frames_per_color:
             self.frame_counter = 0
@@ -72,6 +75,7 @@ class Screen:
                     self.forward = True
 
     def draw(self, screen, game_surface):
+        """Render background and sections."""
         # Blank out game surface for re-rendering
         game_surface.fill(SCREEN_COLOR)
 
@@ -98,5 +102,5 @@ class Screen:
         self.update_color_cycle(WHITE_MIX)
 
     def run(self, screen, game_surface, clock):
-        """Run the screen. Subclasses should override."""
+        """Main loop. Override in subclasses."""
         raise NotImplementedError("Subclasses must implement run()")

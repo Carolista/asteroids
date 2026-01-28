@@ -96,6 +96,7 @@ class GameOverScreen(Screen):
             )  # noqa: E501
 
     def run(self, screen, game_surface, clock):
+        """Handle name entry and replay prompt."""
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
