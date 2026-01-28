@@ -35,24 +35,6 @@ class Screen:
         self.frame_counter = 0
         self.forward = True
 
-        # # Actual content to be displayed
-        # self.title_content = title_content
-        # self.final_score_content = final_score_content
-        # self.prompt_content = prompt_content
-        # self.high_scores_list = high_scores_list if high_scores_list else []
-
-        # # Font sizes
-        # self.title_font_size = title_font_size
-        # self.final_score_font_size = final_score_font_size
-        # self.prompt_font_size = prompt_font_size
-        # self.high_scores_list_font_size = high_scores_list_font_size
-
-        # # Colors - all are lists of RGB values for cycling
-        # self.title_colors = TITLE_COLORS
-        # self.final_score_colors = FINAL_SCORE_COLORS
-        # self.prompt_colors = PROMPT_COLORS
-        # self.high_scores_list_colors = HIGH_SCORES_LIST_COLORS
-
         # Set up containers for Star and Asteroid classes
         Star.containers = self.updatable, self.drawable
         Asteroid.containers = self.updatable, self.drawable, self.asteroids

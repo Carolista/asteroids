@@ -92,7 +92,7 @@ class GameOverScreen(Screen):
             self.sections = self.name_entry_mode_sections
         else:
             self.sections = (
-                self.replay_mode_sections + high_score_manager.get_high_scores_sections()
+                self.replay_mode_sections + self.high_score_manager.get_high_score_sections()
             )  # noqa: E501
 
     def run(self, screen, game_surface, clock):

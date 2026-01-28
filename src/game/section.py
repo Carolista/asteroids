@@ -1,24 +1,20 @@
 import pygame
 
-from src.config.constants import SCREEN_WIDTH, WHITE
+from src.config.constants import DEFAULT_SECTION_GAP, SCREEN_WIDTH, WHITE
 
 
 class Section:
-
-    def __init__(self, text_content, font_name, font_size, colors, gap=30):
+    def __init__(self, text_content, font_name, font_size, colors, gap=DEFAULT_SECTION_GAP):
         self.text_content = text_content
         self.font_name = font_name
         self.font_size = font_size
-        self.colors = colors # list
+        self.colors = colors  # list
         self.current_color = WHITE
         self.gap = gap
 
         self.render_text = None
         self.height = None
         self.rectangle = None
-
-    def update_text_content(self, text_content):
-        self.text_content = text_content
 
     def update_current_color(self, color_index):
         self.current_color = self.colors[color_index]
@@ -29,9 +25,6 @@ class Section:
 
     def update_height(self):
         self.height = self.render_text.get_height()
-
-    def update_gap(self, gap):
-        self.gap = gap
 
     def update_rectangle(self, current_y):
         self.rectangle = self.render_text.get_rect(center=(SCREEN_WIDTH / 2, current_y))

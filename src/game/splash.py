@@ -21,18 +21,20 @@ class SplashScreen(Screen):
             font_size=100,
             colors=TITLE_COLORS,
             gap=0,
-        )  # noqa: E501
-        self.sections.append(self.title_section)
+        )
 
         self.prompt_section = Section(
             text_content="Hit Enter to Play",
             font_name=FONT_REGULAR,
             font_size=32,
             colors=PROMPT_COLORS,
-        )  # noqa: E501
+        )
+
+        self.sections.append(self.title_section)
         self.sections.append(self.prompt_section)
 
         self.high_score_sections = self.high_score_manager.get_high_score_sections()
+        
         self.sections += self.high_score_sections
 
     def run(self, screen, game_surface, clock):
@@ -43,7 +45,7 @@ class SplashScreen(Screen):
                     handle_exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        return True  # Signal to start the game
+                        return True
 
             self.draw(screen, game_surface)
             clock.tick(60)
