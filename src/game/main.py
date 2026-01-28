@@ -13,19 +13,19 @@ from ..config.constants import (
     WAVE_COLOR,
 )
 from ..config.funcs import handle_exit
-from .asteroid import Asteroid
-from .asteroidfield import AsteroidField
-from .fade import Fade
-from .gameover import GameOverScreen
-from .highscores import HighScoreManager
-from .logger import log_event, log_state
-from .particle import Particle
-from .player import Player
-from .shot import Shot
-from .splash import SplashScreen
-from .star import Star
-from .starfield import StarField
-from .startup import run_startup_script
+from .effects.fade import Fade
+from .entities.asteroid import Asteroid
+from .entities.asteroidfield import AsteroidField
+from .entities.particle import Particle
+from .entities.player import Player
+from .entities.shot import Shot
+from .entities.star import Star
+from .entities.starfield import StarField
+from .screens.gameover import GameOverScreen
+from .screens.splash import SplashScreen
+from .systems.highscores import HighScoreManager
+from .systems.logger import log_event, log_state
+from .systems.startup import run_startup_script
 
 # TODO: Make scoring more sophisticated with streak bonuses (with visual feedback)
 # TODO: Add temporary visual display below score when a high score is passed (NEW HIGH SCORE!)
