@@ -1,0 +1,72 @@
+import os
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+
+LINE_WIDTH = 2
+
+DEFAULT_SECTION_GAP = 30
+
+# ASTEROIDS
+ASTEROID_MIN_RADIUS = 18
+ASTEROID_KINDS = 3
+ASTEROID_SPAWN_RATE_SECONDS = 0.8
+ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS
+ASTEROID_MAX_SPEED = 100
+
+# PLAYER/SHOOTER
+PLAYER_RADIUS = 20
+PLAYER_MAX_SPEED = 400  # px/s
+PLAYER_ROTATE_SPEED = 250  # deg/s
+PLAYER_ACCELERATION = 1000  # thrust
+PLAYER_DRAG = 0.8  # allows some drift
+PLAYER_FRICTION = 0.1
+PLAYER_SHOOT_SPEED = 500  # px/s
+PLAYER_SHOOT_COOLDOWN_SECONDS = 0.25
+SHOT_LIFESPAN = 2.0  # seconds
+SHOT_RADIUS = 3
+
+# COLLISION
+PARTICLE_LIFESPAN = 0.5  # seconds
+
+# COLORS
+RED = (173, 43, 3)
+ORANGE = (255, 165, 0)
+BLUE = (13, 136, 189)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# The following three mix lists must have the same length
+RED_ORANGE_MIX = [RED, (182, 57, 3), (191, 70, 2), (200, 84, 2), (209, 97, 2), (219, 111, 1), (228, 124, 1), (237, 138, 1), (246, 151, 0), ORANGE]  # noqa: E501
+BLUE_MIX = [BLUE, (14,140,188), (16, 143, 186), (17,147,185), (19,150,183), (20, 154, 182), (22, 157, 180), (23, 161, 179),(25, 164, 177), (26, 168, 176)]  # noqa: E501
+WHITE_MIX = [(160, 160, 160), (171, 171, 171), (181, 181, 181), (192, 192, 192), (202, 202, 202), (213, 213, 213), (223, 223, 223), (234, 234, 234), (244, 244, 244), WHITE]  # noqa: E501
+
+DARK_GRAY_MIX = [(50, 50, 50), (60, 60, 60), (70, 70, 70), (80, 80, 80), (90, 90, 90)]
+
+SCREEN_COLOR = BLACK
+STAR_COLORS = WHITE_MIX
+ASTEROID_COLORS = DARK_GRAY_MIX
+SCORE_COLOR = BLUE
+PLAYER_COLOR = BLUE
+THRUSTER_COLOR = ORANGE
+SHOT_COLORS = RED_ORANGE_MIX
+PARTICLE_COLORS = SHOT_COLORS + [BLUE]
+WAVE_COLOR = WHITE
+
+# Important: These must all be the same length for cycling
+TITLE_COLORS = RED_ORANGE_MIX
+FINAL_SCORE_COLORS = BLUE_MIX
+PROMPT_COLORS = WHITE_MIX
+NAME_ENTRY_COLORS = BLUE_MIX
+INSTRUCTION_COLORS = WHITE_MIX
+HIGH_SCORES_LIST_COLORS = BLUE_MIX
+
+# FILE PATHS
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FONT_REGULAR = os.path.join(_BASE_DIR, "assets", "fonts", "font_regular.otf")
+FONT_SCORE = os.path.join(_BASE_DIR, "assets", "fonts", "font_score.ttf")
+FONT_TITLE = os.path.join(_BASE_DIR, "assets", "fonts", "font_title.otf")
+LOG_DIR = os.path.join(_BASE_DIR, "logs")
+LOG_GAME_STATE = os.path.join(LOG_DIR, "game_state.jsonl")
+LOG_GAME_EVENTS = os.path.join(LOG_DIR, "game_events.jsonl")
+HIGH_SCORES_FILE = os.path.join(_BASE_DIR, "logs", "high_scores.json")

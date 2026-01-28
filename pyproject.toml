@@ -1,9 +1,29 @@
 [project]
 name = "asteroids"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "A classic Asteroids arcade game built with Pygame"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pygame==2.6.1",
+    "pygame-ce>=2.5.6",
+]
+
+[project.scripts]
+asteroids = "src.game.main:main"
+
+[tool.ruff]
+# Set the maximum line length (Pygame code can get long!)
+line-length = 100
+
+[tool.ruff.lint]
+# Enable specific rules (e.g., E = Error, F = Pyflakes)
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+# Use double quotes for strings (like Prettier/Black)
+quote-style = "double"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.11",
 ]

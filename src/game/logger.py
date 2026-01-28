@@ -3,6 +3,8 @@ import json
 import math
 from datetime import datetime
 
+from ..config.constants import LOG_GAME_EVENTS, LOG_GAME_STATE
+
 __all__ = ["log_state", "log_event"]
 
 _FPS = 60
@@ -109,7 +111,7 @@ def log_state():
 
     # New log file on each run
     mode = "w" if not _state_log_initialized else "a"
-    with open("game_state.jsonl", mode) as f:
+    with open(LOG_GAME_STATE, mode) as f:
         f.write(json.dumps(entry) + "\n")
 
     _state_log_initialized = True
@@ -129,7 +131,7 @@ def log_event(event_type, **details):
     }
 
     mode = "w" if not _event_log_initialized else "a"
-    with open("game_events.jsonl", mode) as f:
+    with open(LOG_GAME_EVENTS, mode) as f:
         f.write(json.dumps(event) + "\n")
 
     _event_log_initialized = True
