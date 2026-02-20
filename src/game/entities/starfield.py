@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from ..config.constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from ...config.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from .star import Star
 
 

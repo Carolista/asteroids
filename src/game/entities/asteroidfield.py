@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from ..config.constants import (
+from ...config.constants import (
     ASTEROID_COLORS,
     ASTEROID_KINDS,
     ASTEROID_MAX_RADIUS,

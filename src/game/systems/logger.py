@@ -3,7 +3,7 @@ import json
 import math
 from datetime import datetime
 
-from ..config.constants import LOG_GAME_EVENTS, LOG_GAME_STATE
+from ...config.constants import LOG_GAME_EVENTS, LOG_GAME_STATE
 
 __all__ = ["log_state", "log_event"]
 

@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-from ..config.constants import (
+from ...config.constants import (
     PLAYER_ACCELERATION,
     PLAYER_COLOR,
     PLAYER_DRAG,
@@ -16,8 +16,8 @@ from ..config.constants import (
     SCREEN_WIDTH,
     THRUSTER_COLOR,
 )
+from ..shapes.triangleshape import TriangleShape
 from .shot import Shot
-from .triangleshape import TriangleShape
 
 
 class Player(TriangleShape):

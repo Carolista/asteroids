@@ -2,8 +2,8 @@ import random
 
 import pygame
 
-from ..config.constants import SHOT_COLORS, SHOT_LIFESPAN, SHOT_RADIUS
-from .circleshape import CircleShape
+from ...config.constants import SHOT_COLORS, SHOT_LIFESPAN, SHOT_RADIUS
+from ..shapes.circleshape import CircleShape
 
 
 class Shot(CircleShape):

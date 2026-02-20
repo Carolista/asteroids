@@ -3,7 +3,7 @@ import random
 
 import pygame
 
-from ..config.constants import (
+from ...config.constants import (
     ASTEROID_COLORS,
     ASTEROID_MAX_RADIUS,
     ASTEROID_MIN_RADIUS,
@@ -12,9 +12,9 @@ from ..config.constants import (
     SCREEN_WIDTH,
     WHITE_MIX,
 )
-from .asteroid import Asteroid
-from .star import Star
-from .starfield import StarField
+from ..entities.asteroid import Asteroid
+from ..entities.star import Star
+from ..entities.starfield import StarField
 
 
 class Screen:

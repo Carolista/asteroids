@@ -1,8 +1,6 @@
 import pygame
 
-from src.game.section import Section
-
-from ..config.constants import (
+from ...config.constants import (
     FINAL_SCORE_COLORS,
     FONT_REGULAR,
     FONT_SCORE,
@@ -12,8 +10,9 @@ from ..config.constants import (
     PROMPT_COLORS,
     TITLE_COLORS,
 )
-from ..config.funcs import handle_exit
+from ...config.funcs import handle_exit
 from .screen import Screen
+from .section import Section
 
 
 class GameOverScreen(Screen):
