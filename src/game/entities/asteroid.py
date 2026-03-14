@@ -3,9 +3,9 @@ import random
 
 import pygame
 
-from ..config.constants import ASTEROID_MIN_RADIUS, LINE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH
-from .circleshape import CircleShape
-from .logger import log_event
+from ...config.constants import ASTEROID_MIN_RADIUS, LINE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH
+from ..shapes.circleshape import CircleShape
+from ..systems.logger import log_event
 
 
 class Asteroid(CircleShape):

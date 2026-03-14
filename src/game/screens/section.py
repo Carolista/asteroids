@@ -1,6 +1,6 @@
 import pygame
 
-from src.config.constants import DEFAULT_SECTION_GAP, SCREEN_WIDTH, WHITE
+from ...config.constants import DEFAULT_SECTION_GAP, SCREEN_WIDTH, WHITE
 
 
 class Section:

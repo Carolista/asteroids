@@ -1,8 +1,7 @@
 import pygame
 
-from src.config.constants import FONT_REGULAR, FONT_TITLE, PROMPT_COLORS, TITLE_COLORS
-
-from ..config.funcs import handle_exit
+from ...config.constants import FONT_REGULAR, FONT_TITLE, PROMPT_COLORS, TITLE_COLORS
+from ...config.funcs import handle_exit
 from .screen import Screen
 from .section import Section
 
@@ -34,7 +33,7 @@ class SplashScreen(Screen):
         self.sections.append(self.prompt_section)
 
         self.high_score_sections = self.high_score_manager.get_high_score_sections()
-        
+
         self.sections += self.high_score_sections
 
     def run(self, screen, game_surface, clock):

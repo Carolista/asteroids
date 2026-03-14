@@ -1,9 +1,8 @@
 import json
 import os
 
-from src.config.constants import FONT_SCORE, HIGH_SCORES_LIST_COLORS
-
-from .section import Section
+from ...config.constants import FONT_SCORE, HIGH_SCORES_LIST_COLORS
+from ..screens.section import Section
 
 
 class HighScoreManager:

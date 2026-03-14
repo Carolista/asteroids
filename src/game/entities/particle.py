@@ -2,8 +2,8 @@ import random
 
 import pygame
 
-from ..config.constants import PARTICLE_COLORS, PARTICLE_LIFESPAN
-from .circleshape import CircleShape
+from ...config.constants import PARTICLE_COLORS, PARTICLE_LIFESPAN
+from ..shapes.circleshape import CircleShape
 
 
 class Particle(CircleShape):

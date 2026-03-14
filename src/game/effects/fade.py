@@ -1,6 +1,6 @@
 import pygame
 
-from ..config.constants import BLACK, SCREEN_HEIGHT, SCREEN_WIDTH
+from ...config.constants import BLACK, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class Fade:
@@ -88,7 +88,7 @@ class Fade:
             color_index: Current color index for sections
             clock: Pygame clock
         """
-        from ..config.constants import SCREEN_HEIGHT
+        from ...config.constants import SCREEN_HEIGHT
 
         elapsed = 0
         # Create a surface for text with per-pixel alpha
@@ -102,7 +102,7 @@ class Fade:
             updatable.update(dt)
 
             # Draw background (stars and asteroids) to game_surface then to screen
-            from ..config.constants import SCREEN_COLOR
+            from ...config.constants import SCREEN_COLOR
 
             game_surface.fill(SCREEN_COLOR)
             for obj in drawable:
@@ -145,7 +145,7 @@ class Fade:
             color_index: Current color index for sections
             clock: Pygame clock
         """
-        from ..config.constants import SCREEN_HEIGHT
+        from ...config.constants import SCREEN_HEIGHT
 
         elapsed = 0
         # Create a surface for text with per-pixel alpha
@@ -159,7 +159,7 @@ class Fade:
             updatable.update(dt)
 
             # Draw background (stars and asteroids) to game_surface then to screen
-            from ..config.constants import SCREEN_COLOR
+            from ...config.constants import SCREEN_COLOR
 
             game_surface.fill(SCREEN_COLOR)
             for obj in drawable:
