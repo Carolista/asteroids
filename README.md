@@ -18,6 +18,7 @@
 <div align="center">
     <a href="#about">About</a> •
     <a href="#features">Features</a> •
+    <a href="#visuals">Visuals</a> •
     <a href="#architecture">Architecture</a> •
     <a href="#tech">Tech Stack</a> •
     <a href="#installation">Installation</a> •
@@ -80,6 +81,18 @@ The project showcases:
 
 ---
 
+<a name="visuals"></a>
+
+### Visuals
+
+![Console Art on Game Start](assets/images/console-art.png)
+![Start Screen](assets/images/landing-screen.png)
+![Gameplay](assets/images/play.png)
+![High Score Name Entry](assets/images/high-score.png)
+![Game Over Screen](assets/images/game-over.png)
+
+---
+
 <a name="architecture"></a>
 
 ## 🏗️ Architecture & Code Organization
@@ -93,35 +106,35 @@ src/
 │   └── funcs.py         # Utility functions
 │
 └── game/
+    ├── entities/        # Game objects (sprites)
+    │   ├── asteroid.py       # Asteroid with splitting logic
+    │   ├── asteroidfield.py  # Spawning system
+    │   ├── particle.py       # Particle effects
+    │   ├── player.py         # Player ship with triangle hitbox
+    │   ├── shot.py           # Projectile system
+    │   ├── star.py           # Individual twinkling stars
+    │   └── starfield.py      # Background star generation
+    │
+    ├── shapes/          # Collision detection geometry
+    │   ├── shape.py          # Base class for all game objects
+    │   ├── circleshape.py    # Circle collision logic
+    │   └── triangleshape.py  # Triangle collision with barycentric coords
+    │
+    ├── screens/         # UI screens and components
+    │   ├── screen.py         # Abstract base screen class
+    │   ├── section.py        # Reusable text rendering component
+    │   ├── splash.py         # Splash screen with high scores
+    │   └── gameover.py       # Game over with name entry
+    │
     ├── effects/         # Visual effects
     │   └── fade.py           # Multiple fade transition methods
     │
-  ├── entities/        # Game objects (sprites)
-  │   ├── asteroid.py       # Asteroid with splitting logic
-  │   ├── asteroidfield.py  # Spawning system
-  │   ├── particle.py       # Particle effects
-  │   ├── player.py         # Player ship with triangle hitbox
-  │   ├── shot.py           # Projectile system
-  │   ├── star.py           # Individual twinkling stars
-  │   └── starfield.py      # Background star generation
-  │
-  ├── main.py          # Game loop and orchestration
-  │
-  ├── screens/         # UI screens and components
-  │   ├── gameover.py       # Game over with name entry
-  │   ├── screen.py         # Abstract base screen class
-  │   ├── section.py        # Reusable text rendering component
-  │   └── splash.py         # Splash screen with high scores
-  │
-  ├── shapes/          # Collision detection geometry
-  │   ├── circleshape.py    # Circle collision logic
-  │   ├── shape.py          # Base class for all game objects
-  │   └── triangleshape.py  # Triangle collision with barycentric coords
-  │
     ├── systems/         # Support systems
     │   ├── highscores.py     # JSON-based persistence
     │   ├── logger.py         # Event and state logging
     │   └── startup.py        # Terminal-style boot sequence
+    │
+    └── main.py          # Game loop and orchestration
 ```
 
 ### Design Patterns
@@ -165,13 +178,13 @@ Screen (abstract base)
 |                                                                                                  Technology | Description                                                  |
 | ----------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------- |
 | ![Python](https://img.shields.io/badge/Python_3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white) | Modern Python with type hints and latest features            |
-| ![Pygame CE](https://img.shields.io/badge/Pygame--CE_2.5.6%2B-00AA00?style=for-the-badge&logo=python&logoColor=white) | Game development framework for sprites, rendering, and input |
+| ![Pygame](https://img.shields.io/badge/Pygame_2.6.1-00AA00?style=for-the-badge&logo=python&logoColor=white) | Game development framework for sprites, rendering, and input |
 |                                           ![UV](https://img.shields.io/badge/UV-3B82F6?style=for-the-badge) | Fast, modern Python package manager and task runner          |
 |                                       ![Ruff](https://img.shields.io/badge/Ruff-FCC21B?style=for-the-badge) | Lightning-fast Python linter and formatter                   |
 
 ### Key Dependencies
 
-- **Pygame CE 2.5.6+**: Core game engine for graphics, sprites, and event handling
+- **Pygame 2.6.1**: Core game engine for graphics, sprites, and event handling
 - **Python 3.13+**: Leverages modern Python features including enhanced type system
 - **UV Package Manager**: Rapid dependency management and virtual environment handling
 - **Ruff**: Code quality enforcement with 100-character line limit
@@ -317,8 +330,6 @@ Several features have been identified for potential future development:
 
 - **Sound Effects**: Engine thrust, shooting, explosions, and ambient music
 - **Difficulty Modes**: Easy, Normal, Hard with different spawn rates and speeds
-- **Leaderboard Integration**: Online high score submission and retrieval
-- **Replay System**: Record and playback gameplay sessions
 
 ### Technical Improvements
 
